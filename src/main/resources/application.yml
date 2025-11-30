@@ -12,7 +12,7 @@ spring:
   datasource:
     url: jdbc:postgresql://db.wbfgmryihcycnltrrzkj.supabase.co:5432/postgres
     username: postgres
-    password: 25663851.D1a
+    password: 
     driver-class-name: org.postgresql.Driver
 
     # Connection Pool (HikariCP)
@@ -71,8 +71,8 @@ jwt:
 # ============================================
 supabase:
   url: https://wbfgmryihcycnltrrzkj.supabase.co
-  anon-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZmdtcnlpaGN5Y25sdHJyemtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0NDk4NzEsImV4cCI6MjA4MDAyNTg3MX0.D-AH1XlS4SxBJmSTT_Dm78AOBODlP7ZyA4KUbYrY46o
-  service-role-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZmdtcnlpaGN5Y25sdHJyemtqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NDQ0OTg3MSwiZXhwIjoyMDgwMDI1ODcxfQ.3Zox0Yz4LOGrJ6flDwb7qniHA5a5Q3ZWVGIs0JHmQAg
+  anon-key: 
+  service-role-key: 
   storage:
     bucket-avatars: avatars
 
