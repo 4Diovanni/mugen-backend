@@ -44,6 +44,7 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+    baseline-version: 0
     locations: classpath:db/migration
     validate-on-migrate: true
     clean-disabled: true  # NUNCA limpe o banco em prod!

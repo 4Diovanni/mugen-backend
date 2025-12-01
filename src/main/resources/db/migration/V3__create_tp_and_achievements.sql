@@ -4,8 +4,8 @@
 
 -- TP Transactions
 CREATE TABLE IF NOT EXISTS tp_transaction (
-                                              id BIGSERIAL PRIMARY KEY,
-                                              character_id UUID NOT NULL REFERENCES character(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    character_id UUID NOT NULL REFERENCES character(id) ON DELETE CASCADE,
     amount INT NOT NULL,
     balance_after INT NOT NULL,
     reason VARCHAR(255) NOT NULL,
@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS tp_transaction (
 
 -- Achievements
 CREATE TABLE IF NOT EXISTS achievement (
-                                           id SERIAL PRIMARY KEY,
-                                           key_name VARCHAR(120) UNIQUE NOT NULL,
+    id SERIAL PRIMARY KEY,
+    key_name VARCHAR(120) UNIQUE NOT NULL,
     title VARCHAR(150) NOT NULL,
     description TEXT,
     requirement_json JSONB NOT NULL,
@@ -34,7 +34,7 @@ INSERT INTO achievement (key_name, title, description, requirement_json, reward_
 
 -- Character achievements
 CREATE TABLE IF NOT EXISTS character_achievement (
-                                                     character_id UUID REFERENCES character(id) ON DELETE CASCADE,
+    character_id UUID REFERENCES character(id) ON DELETE CASCADE,
     achievement_id INT REFERENCES achievement(id) ON DELETE CASCADE,
     obtained_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                                                                                                     PRIMARY KEY (character_id, achievement_id)
@@ -42,18 +42,18 @@ CREATE TABLE IF NOT EXISTS character_achievement (
 
 -- Event log
 CREATE TABLE IF NOT EXISTS event_log (
-                                         id BIGSERIAL PRIMARY KEY,
-                                         user_id UUID REFERENCES app_user(id) ON DELETE SET NULL,
+    id BIGSERIAL PRIMARY KEY,
+    user_id UUID REFERENCES app_user(id) ON DELETE SET NULL,
     character_id UUID REFERENCES character(id) ON DELETE SET NULL,
     event_type VARCHAR(120) NOT NULL,
     event_action VARCHAR(255) NOT NULL,
     payload JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-                                                                                  );
+    );
 
 -- Config
 CREATE TABLE IF NOT EXISTS config (
-                                      key VARCHAR(120) PRIMARY KEY,
+    key VARCHAR(120) PRIMARY KEY,
     value_json JSONB NOT NULL,
     description TEXT,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

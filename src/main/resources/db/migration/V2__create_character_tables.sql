@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS character_attribute (
 
 -- Skills
 CREATE TABLE IF NOT EXISTS skill (
-                                     id SERIAL PRIMARY KEY,
-                                     name VARCHAR(150) NOT NULL,
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
     description TEXT,
     skill_type VARCHAR(50) NOT NULL,
     base_tp_cost INT DEFAULT 10,
