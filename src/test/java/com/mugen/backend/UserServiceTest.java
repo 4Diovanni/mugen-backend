@@ -62,7 +62,7 @@ class UserServiceTest {
                 .isActive(true)
                 .build();
 
-        testUser.addRole(playerRole);
+        testUser.getRoles().add(playerRole);
     }
 
     @Test

@@ -2,10 +2,7 @@ package com.mugen.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -17,14 +14,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User extends BaseEntity {  // ✅ Já herda createdAt e updatedAt de BaseEntity
+public class User extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", columnDefinition = "UUID")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "email", unique = true, nullable = false)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Column(name = "display_name", length = 120)
@@ -36,11 +32,11 @@ public class User extends BaseEntity {  // ✅ Já herda createdAt e updatedAt d
     @Column(name = "avatar_url")
     private String avatarUrl;
 
-    @Column(name = "is_active", nullable = false)
+    @Column(name = "is_active")
     @Builder.Default
     private Boolean isActive = true;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})  // ✅ ADICIONE cascade
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -49,13 +45,25 @@ public class User extends BaseEntity {  // ✅ Já herda createdAt e updatedAt d
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private Set<Character> characters = new HashSet<>();
+    // Métodos auxiliares (backward compatibility)
+    public String getName() {
+        return displayName;
+    }
 
-    // Helper methods
+    public void setName(String name) {
+        this.displayName = name;
+    }
+
+    public String getPassword() {
+        return passwordHash;
+    }
+
+    public void setPassword(String password) {
+        this.passwordHash = password;
+    }
+    // ✅ Métodos para gerenciar roles
     public void addRole(Role role) {
-        if (this.roles == null) {  // ✅ Proteção adicional
+        if (this.roles == null) {
             this.roles = new HashSet<>();
         }
         this.roles.add(role);
@@ -68,7 +76,14 @@ public class User extends BaseEntity {  // ✅ Já herda createdAt e updatedAt d
     }
 
     public boolean hasRole(String roleName) {
-        return roles != null && roles.stream()
-                .anyMatch(role -> role.getName().equals(roleName));
+        if (this.roles == null) {
+            return false;
+        }
+        return this.roles.stream()
+                .anyMatch(role -> role.getName().equalsIgnoreCase(roleName));
+    }
+
+    public boolean hasRole(Role.RoleName roleName) {
+        return hasRole(roleName.name());
     }
 }
