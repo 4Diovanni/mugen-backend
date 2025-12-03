@@ -15,31 +15,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Desabilitar CSRF (vamos implementar proteção JWT depois)
+                // Desabilitar CSRF (API REST stateless não precisa)
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // Configurar autorização de requisições
-                .authorizeHttpRequests(auth -> auth
-                        // Permitir acesso SEM autenticação aos endpoints de health
-                        .requestMatchers(
-                                "/health/**",
-                                "/actuator/**",
-                                "/error"
-                        ).permitAll()
+                // Desabilitar CORS (ou configurar depois se precisar)
+                .cors(AbstractHttpConfigurer::disable)
 
-                        // Todos os outros endpoints requerem autenticação
-                        .anyRequest().authenticated()
+                // ✅ PERMITIR TUDO POR ENQUANTO (sem autenticação)
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
                 )
 
-                // Desabilitar formulário de login padrão (vamos usar JWT)
+                // Desabilitar formulário de login padrão
                 .formLogin(AbstractHttpConfigurer::disable)
 
                 // Desabilitar HTTP Basic Auth
                 .httpBasic(AbstractHttpConfigurer::disable)
 
-                // Stateless session (não cria sessão, usa JWT)
+                // Desabilitar logout padrão
+                .logout(AbstractHttpConfigurer::disable)
+
+                // Stateless session (preparado para JWT no futuro)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+
+                // ✅ Desabilitar frame options (para H2 console se usar)
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.disable())
                 );
 
         return http.build();
