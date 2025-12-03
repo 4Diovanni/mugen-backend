@@ -12,7 +12,7 @@ spring:
   datasource:
     url: jdbc:postgresql://db.wbfgmryihcycnltrrzkj.supabase.co:5432/postgres
     username: postgres
-    password: 
+    password: 25663851.D1a
     driver-class-name: org.postgresql.Driver
 
     # Connection Pool (HikariCP)
@@ -30,7 +30,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate  # validate = não altera schema (Flyway faz isso)
-    show-sql: false  # true = mostra SQL no console (útil para debug)
+    show-sql: true  # true = mostra SQL no console (útil para debug)
     properties:
       hibernate:
         format_sql: true
@@ -64,7 +64,7 @@ server:
 # JWT CONFIGURATION
 # ============================================
 jwt:
-  secret: CHANGE_THIS_SECRET_KEY_IN_PRODUCTION_USE_RANDOM_64_CHARS
+  secret: 0Hv1CHhXJ8qQXnSOhLTSXJSZp7q/It+DgY/gw1VTcU3yr63qgwtq1zBGmU22peIr++5KwkKsAcdzpLnuQyp1oQ==
   expiration: 86400000  # 24 horas em milissegundos
 
 # ============================================
@@ -90,6 +90,7 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
 
 # ============================================
 # PROFILES (dev, prod)

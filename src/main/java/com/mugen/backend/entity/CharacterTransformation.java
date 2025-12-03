@@ -2,12 +2,8 @@ package com.mugen.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "character_transformation")
@@ -16,29 +12,22 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CharacterTransformation implements Serializable {
+public class CharacterTransformation extends BaseEntity {
 
     @EmbeddedId
     private CharacterTransformationId id;
 
-//    @Column(nullable = false, updatable = false)
-//    @CreationTimestamp  // ✅ ADICIONE ISSO
-//    private LocalDateTime createdAt;
-//
-//    @UpdateTimestamp  // ✅ ADICIONE ISSO
-//    private LocalDateTime updatedAt;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("characterId")
-    @JoinColumn(name = "character_id")
+    @JoinColumn(name = "character_id", nullable = false)
     private Character character;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("transformationId")
-    @JoinColumn(name = "transformation_id")
+    @JoinColumn(name = "transformation_id", nullable = false)
     private Transformation transformation;
 
-    @Column(name = "unlocked")
+    @Column(nullable = false)
     @Builder.Default
     private Boolean unlocked = false;
 
@@ -48,20 +37,5 @@ public class CharacterTransformation implements Serializable {
     public void unlock() {
         this.unlocked = true;
         this.unlockedAt = LocalDateTime.now();
-    }
-
-    // Embedded ID class
-    @Embeddable
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    public static class CharacterTransformationId implements Serializable {
-        @Column(name = "character_id", columnDefinition = "UUID")
-        private UUID characterId;
-
-        @Column(name = "transformation_id")
-        private Integer transformationId;
     }
 }

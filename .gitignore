@@ -57,4 +57,10 @@ build/
 hs_err_pid*
 replay_pid*
 
-#
+# Application properties com senhas
+application-local.properties
+application-dev.properties
+application-prod.properties
+
+# Não commitar senhas!
+**/application-secret.properties

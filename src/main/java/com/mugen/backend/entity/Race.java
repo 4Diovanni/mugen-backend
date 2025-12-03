@@ -2,11 +2,8 @@ package com.mugen.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "race")
@@ -20,13 +17,6 @@ public class Race extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-//    @Column(nullable = false, updatable = false)
-//    @CreationTimestamp  // ✅ ADICIONE ISSO
-//    private LocalDateTime createdAt;
-//
-//    @UpdateTimestamp  // ✅ ADICIONE ISSO
-//    private LocalDateTime updatedAt;
 
     @Column(name = "name", unique = true, nullable = false, length = 80)
     private String name;

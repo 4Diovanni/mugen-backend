@@ -2,10 +2,6 @@ package com.mugen.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "skill")
@@ -19,13 +15,6 @@ public class Skill extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-//    @Column(nullable = false, updatable = false)
-//    @CreationTimestamp  // ✅ ADICIONE ISSO
-//    private LocalDateTime createdAt;
-//
-//    @UpdateTimestamp  // ✅ ADICIONE ISSO
-//    private LocalDateTime updatedAt;
 
     @Column(name = "name", nullable = false, length = 150)
     private String name;

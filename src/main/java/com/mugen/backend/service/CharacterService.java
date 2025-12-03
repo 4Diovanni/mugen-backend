@@ -39,6 +39,7 @@ public class CharacterService {
 
     public List<Character> findActiveByOwnerId(UUID ownerId) {
         log.debug("Finding active characters by owner id: {}", ownerId);
+        // ✅ CORRIGIDO - método existe no repository
         return characterRepository.findByOwnerIdAndIsActiveTrue(ownerId);
     }
 
@@ -49,12 +50,19 @@ public class CharacterService {
 
     public Optional<Character> findByIdWithRace(UUID id) {
         log.debug("Finding character by id with race: {}", id);
+        // ✅ CORRIGIDO - método existe no repository
         return characterRepository.findByIdWithRace(id);
     }
 
     public Optional<Character> findByIdWithAttributes(UUID id) {
         log.debug("Finding character by id with attributes: {}", id);
         return characterRepository.findByIdWithAttributes(id);
+    }
+
+    // ✅ ADICIONE ESTE MÉTODO NOVO
+    public Optional<Character> findByIdWithFullDetails(UUID id) {
+        log.debug("Finding character by id with full details: {}", id);
+        return characterRepository.findByIdWithFullDetails(id);
     }
 
     @Transactional
@@ -92,7 +100,7 @@ public class CharacterService {
                 .isActive(true)
                 .build();
 
-        // Inicializar atributos (será feito pelo trigger do banco, mas podemos fazer aqui também)
+        // Inicializar atributos com valores da raça
         CharacterAttribute attributes = CharacterAttribute.builder()
                 .character(character)
                 .str(race.getStartStr())

@@ -1,0 +1,447 @@
+{
+  "info": {
+    "name": "Mugen RPG API - Complete",
+    "description": "Complete API collection for Mugen RPG Backend v2.1.3",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health & Status",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Service is UP', () => {",
+                  "    const res = pm.response.json();",
+                  "    pm.expect(res.status).to.equal('UP');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Ping",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health/ping",
+              "host": ["{{base_url}}"],
+              "path": ["health", "ping"]
+            }
+          }
+        },
+        {
+          "name": "Test Protected",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/test/protected",
+              "host": ["{{base_url}}"],
+              "path": ["test", "protected"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Races",
+      "item": [
+        {
+          "name": "List All Races",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+                  "",
+                  "// Save first race ID",
+                  "const races = pm.response.json();",
+                  "if (races.length > 0) {",
+                  "    pm.environment.set('race_id', races[0].id);",
+                  "    console.log('Saved race_id:', races[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/races",
+              "host": ["{{base_url}}"],
+              "path": ["races"]
+            }
+          }
+        },
+        {
+          "name": "Get Race by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Race has required fields', () => {",
+                  "    const race = pm.response.json();",
+                  "    pm.expect(race).to.have.property('id');",
+                  "    pm.expect(race).to.have.property('name');",
+                  "    pm.expect(race).to.have.property('raceClassModifier');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/races/{{race_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["races", "{{race_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Characters",
+      "item": [
+        {
+          "name": "Create Character",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Character created', () => {",
+                  "    const char = pm.response.json();",
+                  "    pm.expect(char).to.have.property('id');",
+                  "    pm.expect(char.tp).to.equal(10);",
+                  "    ",
+                  "    // Save character ID",
+                  "    pm.environment.set('character_id', char.id);",
+                  "    console.log('Created character_id:', char.id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters?ownerId={{owner_id}}&name={{$randomFirstName}}&raceId={{race_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["characters"],
+              "query": [
+                {
+                  "key": "ownerId",
+                  "value": "{{owner_id}}"
+                },
+                {
+                  "key": "name",
+                  "value": "{{$randomFirstName}}"
+                },
+                {
+                  "key": "raceId",
+                  "value": "{{race_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List All Characters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters",
+              "host": ["{{base_url}}"],
+              "path": ["characters"]
+            }
+          }
+        },
+        {
+          "name": "List Characters by Owner",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters?ownerId={{owner_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["characters"],
+              "query": [
+                {
+                  "key": "ownerId",
+                  "value": "{{owner_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Character by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Character has attributes', () => {",
+                  "    const char = pm.response.json();",
+                  "    pm.expect(char).to.have.property('attributes');",
+                  "    pm.expect(char.attributes).to.have.property('str');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Character Stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Stats calculated', () => {",
+                  "    const stats = pm.response.json();",
+                  "    pm.expect(stats).to.have.property('meleeDamage');",
+                  "    pm.expect(stats).to.have.property('maxHp');",
+                  "    pm.expect(stats).to.have.property('maxKi');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}/stats",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Allocate Attribute",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('TP was deducted', () => {",
+                  "    const char = pm.response.json();",
+                  "    pm.expect(char.tp).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributeName\": \"STR\",\n  \"points\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}/allocate-attribute",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}", "allocate-attribute"]
+            }
+          }
+        },
+        {
+          "name": "Delete Character",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. TP Management",
+      "item": [
+        {
+          "name": "Award TP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('TP was awarded', () => {",
+                  "    const char = pm.response.json();",
+                  "    pm.expect(char.tp).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"characterId\": \"{{character_id}}\",\n  \"amount\": 50,\n  \"reason\": \"MINIGAME_REFLEX\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tp/award",
+              "host": ["{{base_url}}"],
+              "path": ["tp", "award"]
+            }
+          }
+        },
+        {
+          "name": "Calculate TP Cost",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Cost is number', () => {",
+                  "    pm.expect(pm.response.json()).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tp/calculate-cost?currentValue=45&pointsToAllocate=10",
+              "host": ["{{base_url}}"],
+              "path": ["tp", "calculate-cost"],
+              "query": [
+                {
+                  "key": "currentValue",
+                  "value": "45"
+                },
+                {
+                  "key": "pointsToAllocate",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get TP History",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('History is array', () => {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tp/history/{{character_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["tp", "history", "{{character_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get TP Summary",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Summary has fields', () => {",
+                  "    const summary = pm.response.json();",
+                  "    pm.expect(summary).to.have.property('currentTP');",
+                  "    pm.expect(summary).to.have.property('totalEarned');",
+                  "    pm.expect(summary).to.have.property('totalSpent');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tp/summary/{{character_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["tp", "summary", "{{character_id}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

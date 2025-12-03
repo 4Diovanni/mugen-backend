@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
@@ -18,11 +16,11 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity implements Serializable {
 
-    @Column(name = "createdAt", nullable = false, updatable = false)
-    @CreationTimestamp  // ✅ ADICIONE ISSO
+    @Column(name = "created_at", nullable = false, updatable = false) // ✅ CORRIGIDO: snake_case
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Column(name = "updatedAt")
-    @UpdateTimestamp  // ✅ ADICIONE ISSO
+    @Column(name = "updated_at") // ✅ CORRIGIDO: snake_case
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 }
