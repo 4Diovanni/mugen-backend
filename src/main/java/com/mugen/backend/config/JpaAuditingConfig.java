@@ -7,6 +7,5 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 public class JpaAuditingConfig {
     // Habilita auditing automático do Spring Data JPA
-    // @CreatedDate e @LastModifiedDate agora funciona!
-
+    // @CreatedDate e @LastModifiedDate agora funcionam!
 }

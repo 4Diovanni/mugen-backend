@@ -1,6 +1,8 @@
 package com.mugen.backend.repository;
 
 import com.mugen.backend.entity.Character;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,45 +15,106 @@ import java.util.UUID;
 @Repository
 public interface CharacterRepository extends JpaRepository<Character, UUID> {
 
-    // Buscar personagens por owner
+    // ========================================
+    // CONSULTAS BÁSICAS (Spring Data Method Naming)
+    // ========================================
+
+    /**
+     * Buscar todos os personagens de um usuário
+     */
     List<Character> findByOwnerId(UUID ownerId);
 
-    // ✅ ADICIONE ESTE MÉTODO
-    // Buscar personagens ativos por owner (Spring Data naming convention)
+    /**
+     * Buscar todos os personagens de um usuário com paginação
+     */
+    Page<Character> findByOwnerId(UUID ownerId, Pageable pageable);
+
+    /**
+     * Buscar apenas personagens ativos de um usuário
+     */
     List<Character> findByOwnerIdAndIsActiveTrue(UUID ownerId);
 
-    // OU use query customizada (alternativa)
-    @Query("SELECT c FROM Character c WHERE c.owner.id = :ownerId AND c.isActive = true")
-    List<Character> findActiveByOwnerId(@Param("ownerId") UUID ownerId);
+    /**
+     * Verificar se existe um personagem com o mesmo nome para o mesmo usuário
+     */
+    boolean existsByOwnerIdAndName(UUID ownerId, String name);
 
-    // ✅ ADICIONE ESTE MÉTODO
-    // Buscar com raça carregada
-    @Query("SELECT c FROM Character c LEFT JOIN FETCH c.race WHERE c.id = :id")
+    /**
+     * Contar quantos personagens um usuário possui
+     */
+    long countByOwnerId(UUID ownerId);
+
+    // ========================================
+    // CONSULTAS COM FETCH JOINS (Queries Customizadas)
+    // ========================================
+
+    /**
+     * Buscar personagem por ID carregando a raça
+     */
+    @Query("SELECT c FROM Character c " +
+            "LEFT JOIN FETCH c.race " +
+            "WHERE c.id = :id")
     Optional<Character> findByIdWithRace(@Param("id") UUID id);
 
-    // Buscar com atributos carregados
-    @Query("SELECT c FROM Character c LEFT JOIN FETCH c.attributes WHERE c.id = :id")
+    /**
+     * Buscar personagem por ID carregando os atributos
+     */
+    @Query("SELECT c FROM Character c " +
+            "LEFT JOIN FETCH c.attributes " +
+            "WHERE c.id = :id")
     Optional<Character> findByIdWithAttributes(@Param("id") UUID id);
 
-    // Buscar com TUDO carregado (use com cuidado - pode ser pesado)
+    /**
+     * Buscar personagem por ID carregando TODOS os relacionamentos
+     * Use com moderação - pode ser pesado em produção
+     */
     @Query("SELECT DISTINCT c FROM Character c " +
-            "LEFT JOIN FETCH c.attributes " +
+            "LEFT JOIN FETCH c.owner " +
             "LEFT JOIN FETCH c.race " +
+            "LEFT JOIN FETCH c.attributes " +
             "LEFT JOIN FETCH c.activeTransformation " +
+            "LEFT JOIN FETCH c.skills " +
+            "LEFT JOIN FETCH c.transformations " +
             "WHERE c.id = :id")
     Optional<Character> findByIdWithFullDetails(@Param("id") UUID id);
 
-    // Verificar se nome já existe para o mesmo owner
-    boolean existsByOwnerIdAndName(UUID ownerId, String name);
+    /**
+     * Listar todos os personagens com paginação carregando owner, race e attributes
+     * Usado no endpoint GET /characters
+     */
+    @Query("SELECT DISTINCT c FROM Character c " +
+            "LEFT JOIN FETCH c.owner " +
+            "LEFT JOIN FETCH c.race " +
+            "LEFT JOIN FETCH c.attributes")
+    Page<Character> findAllWithDetails(Pageable pageable);
 
-    // Contar personagens por owner
-    Long countByOwnerId(UUID ownerId);
+    // ========================================
+    // CONSULTAS ESPECÍFICAS DE NEGÓCIO
+    // ========================================
 
-    // Buscar personagens por raça
-    @Query("SELECT c FROM Character c WHERE c.race.id = :raceId")
+    /**
+     * Buscar personagens por raça
+     */
+    @Query("SELECT c FROM Character c " +
+            "LEFT JOIN FETCH c.owner " +
+            "LEFT JOIN FETCH c.attributes " +
+            "WHERE c.race.id = :raceId")
     List<Character> findByRaceId(@Param("raceId") Integer raceId);
 
-    // Buscar personagens com transformação ativa
-    @Query("SELECT c FROM Character c WHERE c.activeTransformation IS NOT NULL")
+    /**
+     * Buscar personagens que possuem transformação ativa
+     */
+    @Query("SELECT c FROM Character c " +
+            "LEFT JOIN FETCH c.activeTransformation " +
+            "WHERE c.activeTransformation IS NOT NULL")
     List<Character> findWithActiveTransformation();
+
+    /**
+     * Buscar personagens ativos de um usuário (query customizada alternativa)
+     * Mesma função que findByOwnerIdAndIsActiveTrue, mas usando @Query
+     */
+    @Query("SELECT c FROM Character c " +
+            "WHERE c.owner.id = :ownerId " +
+            "AND c.isActive = true")
+    List<Character> findActiveByOwnerIdCustom(@Param("ownerId") UUID ownerId);
 }

@@ -24,6 +24,7 @@ public class Character extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "characters", "passwordHash", "roles"}) // ✅ Adicionar
     private User owner;
 
     @Column(name = "name", nullable = false, length = 120)
@@ -59,12 +60,14 @@ public class Character extends BaseEntity {
     private CharacterAttribute attributes;
 
     @OneToMany(mappedBy = "character", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"character", "hibernateLazyInitializer", "handler"})
     @Builder.Default
-    private Set<CharacterSkill> skills = new HashSet<>();
+    private Set<CharacterSkill> skills = new HashSet<>(); // ✅ Já está correto
 
     @OneToMany(mappedBy = "character", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"character", "hibernateLazyInitializer", "handler"})
     @Builder.Default
-    private Set<CharacterTransformation> transformations = new HashSet<>();
+    private Set<CharacterTransformation> transformations = new HashSet<>(); // ✅ Já está correto
 
     // Helper methods
 

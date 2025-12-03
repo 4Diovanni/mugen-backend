@@ -1,5 +1,7 @@
 package com.mugen.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,7 +28,8 @@ public class User extends BaseEntity {
     @Column(name = "display_name", length = 120)
     private String displayName;
 
-    @Column(name = "password_hash")
+    @Column(name = "password_hash", nullable = false)
+    @JsonIgnore  // ✅ NUNCA expor no JSON
     private String passwordHash;
 
     @Column(name = "avatar_url")
@@ -45,9 +48,14 @@ public class User extends BaseEntity {
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
-    // Métodos auxiliares (backward compatibility)
+    // ✅ Campo transiente (não vai no banco, só para receber senha no request)
+    @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
+
+    // Helper method
     public String getName() {
-        return displayName;
+        return displayName != null ? displayName : email.split("@")[0];
     }
 
     public void setName(String name) {
