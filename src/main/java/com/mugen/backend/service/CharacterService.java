@@ -67,13 +67,15 @@ public class CharacterService {
 
     @Transactional
     public Character createCharacter(UUID ownerId, String name, Integer raceId) {
-        // Validar limite de personagens
+        log.info("Creating character: {} for owner: {}", name, ownerId);  // ✅ Mantém "Creating"
+
+        // ✅ VALIDAÇÃO 1: Limite de personagens
         long characterCount = characterRepository.countByOwnerId(ownerId);
         if (characterCount >= MAX_CHARACTERS_PER_USER) {
             throw new IllegalStateException("User has reached maximum character limit: " + MAX_CHARACTERS_PER_USER);
         }
 
-        // Validar nome único por usuário
+        // ✅ VALIDAÇÃO 2: Nome único por usuário (EVITA DUPLICAÇÃO!)
         if (characterRepository.existsByOwnerIdAndName(ownerId, name)) {
             throw new IllegalArgumentException("Character name already exists for this user: " + name);
         }
@@ -100,9 +102,8 @@ public class CharacterService {
                 .isActive(true)
                 .build();
 
-        // Inicializar atributos com valores da raça
+        // Criar atributos
         CharacterAttribute attributes = CharacterAttribute.builder()
-                .character(character)
                 .str(race.getStartStr())
                 .dex(race.getStartDex())
                 .con(race.getStartCon())
@@ -111,13 +112,17 @@ public class CharacterService {
                 .spi(race.getStartSpi())
                 .build();
 
+        // Definir relacionamento bidirecional
         character.setAttributes(attributes);
 
+        // Salvar
         Character saved = characterRepository.save(character);
+
         log.info("Created character: {} for user: {}", saved.getName(), owner.getEmail());
 
         return saved;
     }
+
 
     @Transactional
     public Character updateCharacter(Character character) {

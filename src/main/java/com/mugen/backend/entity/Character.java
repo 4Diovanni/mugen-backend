@@ -1,5 +1,6 @@
 package com.mugen.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,13 +21,6 @@ public class Character extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", columnDefinition = "UUID")
     private UUID id;
-
-//    @Column(nullable = false, updatable = false)
-//    @CreationTimestamp  // ✅ ADICIONE ISSO
-//    private LocalDateTime createdAt;
-//
-//    @UpdateTimestamp  // ✅ ADICIONE ISSO
-//    private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
@@ -59,7 +53,9 @@ public class Character extends BaseEntity {
     @Builder.Default
     private Boolean isActive = true;
 
+    // ✅ CORRIGIDO: Adicionado @JsonIgnoreProperties para evitar recursão infinita
     @OneToOne(mappedBy = "character", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"character"})
     private CharacterAttribute attributes;
 
     @OneToMany(mappedBy = "character", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -71,6 +67,14 @@ public class Character extends BaseEntity {
     private Set<CharacterTransformation> transformations = new HashSet<>();
 
     // Helper methods
+
+    public void setAttributes(CharacterAttribute attributes) {
+        if (attributes != null) {
+            this.attributes = attributes;
+            attributes.setCharacter(this);  // ✅ Garantir relacionamento bidirecional
+        }
+    }
+
     public void addSkill(CharacterSkill characterSkill) {
         skills.add(characterSkill);
         characterSkill.setCharacter(this);
@@ -79,5 +83,15 @@ public class Character extends BaseEntity {
     public void removeSkill(CharacterSkill characterSkill) {
         skills.remove(characterSkill);
         characterSkill.setCharacter(null);
+    }
+
+    public void addTransformation(CharacterTransformation characterTransformation) {
+        transformations.add(characterTransformation);
+        characterTransformation.setCharacter(this);
+    }
+
+    public void removeTransformation(CharacterTransformation characterTransformation) {
+        transformations.remove(characterTransformation);
+        characterTransformation.setCharacter(null);
     }
 }

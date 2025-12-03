@@ -1,8 +1,9 @@
 {
   "info": {
     "name": "Mugen RPG API - Complete",
-    "description": "Complete API collection for Mugen RPG Backend v2.1.3",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "description": "Complete API collection for Mugen RPG Backend v2.1.3 - Dragon Ball RPG System\n\nFeatures:\n- 16 endpoints across 5 controllers\n- Automated tests for each request\n- Dynamic variables with auto-save\n- Full CRUD operations for characters\n- TP (Training Points) management system\n\nCreated: December 2025",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "mugen-rpg"
   },
   "item": [
     {
@@ -15,12 +16,23 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
                   "pm.test('Service is UP', () => {",
                   "    const res = pm.response.json();",
                   "    pm.expect(res.status).to.equal('UP');",
+                  "    pm.expect(res.service).to.equal('MUGEN RPG Backend');",
+                  "});",
+                  "",
+                  "pm.test('Has timestamp and version', () => {",
+                  "    const res = pm.response.json();",
+                  "    pm.expect(res).to.have.property('timestamp');",
+                  "    pm.expect(res).to.have.property('version');",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
@@ -31,11 +43,30 @@
               "raw": "{{base_url}}/health",
               "host": ["{{base_url}}"],
               "path": ["health"]
-            }
-          }
+            },
+            "description": "Verifica se a API está rodando e retorna informações do serviço."
+          },
+          "response": []
         },
         {
           "name": "Ping",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns pong', () => {",
+                  "    pm.expect(pm.response.text()).to.include('pong');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -43,11 +74,30 @@
               "raw": "{{base_url}}/health/ping",
               "host": ["{{base_url}}"],
               "path": ["health", "ping"]
-            }
-          }
+            },
+            "description": "Ping rápido para verificar conectividade."
+          },
+          "response": []
         },
         {
-          "name": "Test Protected",
+          "name": "Test Protected Endpoint",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns protected message', () => {",
+                  "    pm.expect(pm.response.text()).to.include('protegido');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -55,10 +105,13 @@
               "raw": "{{base_url}}/test/protected",
               "host": ["{{base_url}}"],
               "path": ["test", "protected"]
-            }
-          }
+            },
+            "description": "Endpoint de teste para validar configuração de segurança."
+          },
+          "response": []
         }
-      ]
+      ],
+      "description": "Endpoints de verificação de saúde e status da aplicação."
     },
     {
       "name": "2. Races",
@@ -70,16 +123,31 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
                   "",
-                  "// Save first race ID",
+                  "pm.test('Response is array', () => {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Races have required fields', () => {",
+                  "    const races = pm.response.json();",
+                  "    if (races.length > 0) {",
+                  "        pm.expect(races[0]).to.have.property('id');",
+                  "        pm.expect(races[0]).to.have.property('name');",
+                  "        pm.expect(races[0]).to.have.property('raceClassModifier');",
+                  "    }",
+                  "});",
+                  "",
+                  "// Save first race ID for next requests",
                   "const races = pm.response.json();",
                   "if (races.length > 0) {",
                   "    pm.environment.set('race_id', races[0].id);",
-                  "    console.log('Saved race_id:', races[0].id);",
+                  "    console.log('✅ Saved race_id:', races[0].id, '(' + races[0].name + ')');",
                   "}"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
@@ -90,8 +158,10 @@
               "raw": "{{base_url}}/races",
               "host": ["{{base_url}}"],
               "path": ["races"]
-            }
-          }
+            },
+            "description": "Lista todas as raças ativas do sistema (Saiyan, Namekuseijin, Human, etc)."
+          },
+          "response": []
         },
         {
           "name": "Get Race by ID",
@@ -100,14 +170,26 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
                   "pm.test('Race has required fields', () => {",
                   "    const race = pm.response.json();",
                   "    pm.expect(race).to.have.property('id');",
                   "    pm.expect(race).to.have.property('name');",
                   "    pm.expect(race).to.have.property('raceClassModifier');",
+                  "    pm.expect(race).to.have.property('startStr');",
+                  "    pm.expect(race).to.have.property('startDex');",
+                  "    pm.expect(race).to.have.property('startCon');",
+                  "});",
+                  "",
+                  "pm.test('Race modifier is decimal', () => {",
+                  "    const race = pm.response.json();",
+                  "    pm.expect(race.raceClassModifier).to.be.a('number');",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
@@ -118,10 +200,13 @@
               "raw": "{{base_url}}/races/{{race_id}}",
               "host": ["{{base_url}}"],
               "path": ["races", "{{race_id}}"]
-            }
-          }
+            },
+            "description": "Busca uma raça específica por ID, retornando atributos iniciais e modificadores."
+          },
+          "response": []
         }
-      ]
+      ],
+      "description": "Endpoints de gerenciamento de raças (Saiyan, Namekuseijin, etc)."
     },
     {
       "name": "3. Characters",
@@ -133,17 +218,25 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Character created', () => {",
+                  "pm.test('Status is 201', () => {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Character created successfully', () => {",
                   "    const char = pm.response.json();",
                   "    pm.expect(char).to.have.property('id');",
-                  "    pm.expect(char.tp).to.equal(10);",
-                  "    ",
-                  "    // Save character ID",
-                  "    pm.environment.set('character_id', char.id);",
-                  "    console.log('Created character_id:', char.id);",
-                  "});"
-                ]
+                  "    pm.expect(char).to.have.property('name');",
+                  "    pm.expect(char).to.have.property('tp');",
+                  "    pm.expect(char.tp).to.equal(10); // Starting TP",
+                  "    pm.expect(char.level).to.equal(1);",
+                  "});",
+                  "",
+                  "// Save character ID for next requests",
+                  "const char = pm.response.json();",
+                  "pm.environment.set('character_id', char.id);",
+                  "console.log('✅ Created character_id:', char.id, '(' + char.name + ')');"
+                ],
+                "type": "text/javascript"
               }
             }
           ],
@@ -157,22 +250,44 @@
               "query": [
                 {
                   "key": "ownerId",
-                  "value": "{{owner_id}}"
+                  "value": "{{owner_id}}",
+                  "description": "UUID do dono do personagem"
                 },
                 {
                   "key": "name",
-                  "value": "{{$randomFirstName}}"
+                  "value": "{{$randomFirstName}}",
+                  "description": "Nome do personagem (usa nome aleatório)"
                 },
                 {
                   "key": "raceId",
-                  "value": "{{race_id}}"
+                  "value": "{{race_id}}",
+                  "description": "ID da raça (salvo automaticamente)"
                 }
               ]
-            }
-          }
+            },
+            "description": "Cria um novo personagem com 10 TP iniciais e atributos base da raça."
+          },
+          "response": []
         },
         {
           "name": "List All Characters",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is array', () => {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -180,11 +295,38 @@
               "raw": "{{base_url}}/characters",
               "host": ["{{base_url}}"],
               "path": ["characters"]
-            }
-          }
+            },
+            "description": "Lista todos os personagens do sistema."
+          },
+          "response": []
         },
         {
           "name": "List Characters by Owner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is array', () => {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('All characters belong to owner', () => {",
+                  "    const chars = pm.response.json();",
+                  "    const ownerId = pm.environment.get('owner_id');",
+                  "    chars.forEach(char => {",
+                  "        pm.expect(char.owner.id).to.equal(ownerId);",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -195,11 +337,14 @@
               "query": [
                 {
                   "key": "ownerId",
-                  "value": "{{owner_id}}"
+                  "value": "{{owner_id}}",
+                  "description": "Filtrar por dono"
                 }
               ]
-            }
-          }
+            },
+            "description": "Lista personagens de um jogador específico."
+          },
+          "response": []
         },
         {
           "name": "Get Character by ID",
@@ -208,13 +353,25 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
                   "pm.test('Character has attributes', () => {",
                   "    const char = pm.response.json();",
                   "    pm.expect(char).to.have.property('attributes');",
                   "    pm.expect(char.attributes).to.have.property('str');",
+                  "    pm.expect(char.attributes).to.have.property('dex');",
+                  "    pm.expect(char.attributes).to.have.property('con');",
+                  "});",
+                  "",
+                  "pm.test('Character has race info', () => {",
+                  "    const char = pm.response.json();",
+                  "    pm.expect(char).to.have.property('race');",
+                  "    pm.expect(char.race).to.have.property('name');",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
@@ -225,8 +382,10 @@
               "raw": "{{base_url}}/characters/{{character_id}}",
               "host": ["{{base_url}}"],
               "path": ["characters", "{{character_id}}"]
-            }
-          }
+            },
+            "description": "Busca personagem completo com atributos, raça, skills e transformações."
+          },
+          "response": []
         },
         {
           "name": "Get Character Stats",
@@ -235,14 +394,26 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Stats calculated', () => {",
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Stats calculated correctly', () => {",
                   "    const stats = pm.response.json();",
                   "    pm.expect(stats).to.have.property('meleeDamage');",
                   "    pm.expect(stats).to.have.property('maxHp');",
                   "    pm.expect(stats).to.have.property('maxKi');",
+                  "    pm.expect(stats).to.have.property('speed');",
+                  "});",
+                  "",
+                  "pm.test('Stats are numbers', () => {",
+                  "    const stats = pm.response.json();",
+                  "    pm.expect(stats.meleeDamage).to.be.a('number');",
+                  "    pm.expect(stats.maxHp).to.be.a('number');",
+                  "    pm.expect(stats.maxKi).to.be.a('number');",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
@@ -253,8 +424,10 @@
               "raw": "{{base_url}}/characters/{{character_id}}/stats",
               "host": ["{{base_url}}"],
               "path": ["characters", "{{character_id}}", "stats"]
-            }
-          }
+            },
+            "description": "Calcula stats finais do personagem (HP, Ki, Dano, Velocidade, etc)."
+          },
+          "response": []
         },
         {
           "name": "Allocate Attribute",
@@ -263,12 +436,22 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
                   "pm.test('TP was deducted', () => {",
                   "    const char = pm.response.json();",
                   "    pm.expect(char.tp).to.be.a('number');",
+                  "    pm.expect(char.tp).to.be.below(100); // After spending",
+                  "});",
+                  "",
+                  "pm.test('Attribute was increased', () => {",
+                  "    const char = pm.response.json();",
+                  "    pm.expect(char.attributes.str).to.be.above(0);",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
@@ -288,8 +471,10 @@
               "raw": "{{base_url}}/characters/{{character_id}}/allocate-attribute",
               "host": ["{{base_url}}"],
               "path": ["characters", "{{character_id}}", "allocate-attribute"]
-            }
-          }
+            },
+            "description": "Aloca pontos em um atributo, gastando TP. Custo aumenta com valor atual."
+          },
+          "response": []
         },
         {
           "name": "Delete Character",
@@ -298,8 +483,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 204', () => pm.response.to.have.status(204));"
-                ]
+                  "pm.test('Status is 204', () => {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "console.log('✅ Character deleted successfully');"
+                ],
+                "type": "text/javascript"
               }
             }
           ],
@@ -310,10 +500,13 @@
               "raw": "{{base_url}}/characters/{{character_id}}",
               "host": ["{{base_url}}"],
               "path": ["characters", "{{character_id}}"]
-            }
-          }
+            },
+            "description": "Deleta um personagem permanentemente."
+          },
+          "response": []
         }
-      ]
+      ],
+      "description": "Endpoints de gerenciamento de personagens (CRUD completo)."
     },
     {
       "name": "4. TP Management",
@@ -325,12 +518,18 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
                   "pm.test('TP was awarded', () => {",
                   "    const char = pm.response.json();",
-                  "    pm.expect(char.tp).to.be.above(0);",
-                  "});"
-                ]
+                  "    pm.expect(char.tp).to.be.above(10); // More than starting TP",
+                  "});",
+                  "",
+                  "console.log('✅ Awarded 50 TP to character');"
+                ],
+                "type": "text/javascript"
               }
             }
           ],
@@ -350,8 +549,10 @@
               "raw": "{{base_url}}/tp/award",
               "host": ["{{base_url}}"],
               "path": ["tp", "award"]
-            }
-          }
+            },
+            "description": "Concede TP ao personagem (minigames, quests, mestre)."
+          },
+          "response": []
         },
         {
           "name": "Calculate TP Cost",
@@ -360,11 +561,19 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
                   "pm.test('Cost is number', () => {",
-                  "    pm.expect(pm.response.json()).to.be.a('number');",
-                  "});"
-                ]
+                  "    const cost = pm.response.json();",
+                  "    pm.expect(cost).to.be.a('number');",
+                  "    pm.expect(cost).to.be.above(0);",
+                  "});",
+                  "",
+                  "console.log('TP Cost:', pm.response.json());"
+                ],
+                "type": "text/javascript"
               }
             }
           ],
@@ -378,15 +587,19 @@
               "query": [
                 {
                   "key": "currentValue",
-                  "value": "45"
+                  "value": "45",
+                  "description": "Valor atual do atributo"
                 },
                 {
                   "key": "pointsToAllocate",
-                  "value": "10"
+                  "value": "10",
+                  "description": "Pontos a alocar"
                 }
               ]
-            }
-          }
+            },
+            "description": "Calcula custo de TP antes de confirmar alocação (preview)."
+          },
+          "response": []
         },
         {
           "name": "Get TP History",
@@ -395,11 +608,24 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
                   "pm.test('History is array', () => {",
                   "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Transactions have required fields', () => {",
+                  "    const history = pm.response.json();",
+                  "    if (history.length > 0) {",
+                  "        pm.expect(history[0]).to.have.property('amount');",
+                  "        pm.expect(history[0]).to.have.property('reason');",
+                  "        pm.expect(history[0]).to.have.property('timestamp');",
+                  "    }",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
@@ -410,8 +636,10 @@
               "raw": "{{base_url}}/tp/history/{{character_id}}",
               "host": ["{{base_url}}"],
               "path": ["tp", "history", "{{character_id}}"]
-            }
-          }
+            },
+            "description": "Retorna histórico completo de transações de TP (ganhos e gastos)."
+          },
+          "response": []
         },
         {
           "name": "Get TP Summary",
@@ -420,14 +648,24 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Summary has fields', () => {",
+                  "pm.test('Status is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Summary has all fields', () => {",
                   "    const summary = pm.response.json();",
                   "    pm.expect(summary).to.have.property('currentTP');",
                   "    pm.expect(summary).to.have.property('totalEarned');",
                   "    pm.expect(summary).to.have.property('totalSpent');",
+                  "    pm.expect(summary).to.have.property('breakdown');",
+                  "});",
+                  "",
+                  "pm.test('Breakdown is object', () => {",
+                  "    const summary = pm.response.json();",
+                  "    pm.expect(summary.breakdown).to.be.an('object');",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
@@ -438,10 +676,44 @@
               "raw": "{{base_url}}/tp/summary/{{character_id}}",
               "host": ["{{base_url}}"],
               "path": ["tp", "summary", "{{character_id}}"]
-            }
-          }
+            },
+            "description": "Retorna resumo de TP: total ganho, gasto, atual e breakdown por fonte."
+          },
+          "response": []
         }
-      ]
+      ],
+      "description": "Endpoints de gerenciamento de Training Points (TP)."
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global pre-request script",
+          "console.log('🚀 Running request to:', pm.request.url.toString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script",
+          "pm.test('Response time is acceptable', () => {",
+          "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api",
+      "type": "string"
     }
   ]
 }

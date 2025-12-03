@@ -1,5 +1,6 @@
 package com.mugen.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,20 +15,14 @@ import java.util.UUID;
 @Builder
 public class CharacterAttribute extends BaseEntity {
 
+    // ✅ ESTE É O ID REAL - compartilhado com Character
     @Id
-    @Column(name = "character_id", columnDefinition = "UUID")
-    private UUID characterId;
-
-//    @Column(nullable = false, updatable = false)
-//    @CreationTimestamp  // ✅ ADICIONE ISSO
-//    private LocalDateTime createdAt;
-//
-//    @UpdateTimestamp  // ✅ ADICIONE ISSO
-//    private LocalDateTime updatedAt;
+    private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
+    @MapsId  // ✅ Usa o ID do Character como ID do CharacterAttribute
     @JoinColumn(name = "character_id")
+    @JsonIgnoreProperties({"attributes"})
     private Character character;
 
     @Column(name = "str")

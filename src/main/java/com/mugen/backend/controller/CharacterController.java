@@ -81,7 +81,7 @@ public class CharacterController {
             @RequestParam String name,
             @RequestParam Integer raceId) {
 
-        log.info("Creating character: {} for owner: {}", name, ownerId);
+        log.info("Request to create character: {} for owner: {}", name, ownerId);  // ✅ Mudei para "Request to create"
 
         Character created = characterService.createCharacter(ownerId, name, raceId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
