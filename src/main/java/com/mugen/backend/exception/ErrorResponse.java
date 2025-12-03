@@ -1,4 +1,4 @@
-package com.mugen.backend.dto;
+package com.mugen.backend.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
