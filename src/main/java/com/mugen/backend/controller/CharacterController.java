@@ -1,12 +1,12 @@
 package com.mugen.backend.controller;
 
 import com.mugen.backend.dto.*;
+import com.mugen.backend.entity.*;
 import com.mugen.backend.entity.Character;
-import com.mugen.backend.entity.CharacterSkill;
-import com.mugen.backend.entity.User;
 import com.mugen.backend.service.CharacterService;
 import com.mugen.backend.service.CharacterStatService;
 import com.mugen.backend.service.TPService;
+import com.mugen.backend.service.TransformationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +38,7 @@ public class CharacterController {
     private final CharacterService characterService;
     private final CharacterStatService statService;
     private final TPService tpService;
+    private final TransformationService transformationService;
 
     // ==================== 1️⃣ CRUD BÁSICO ====================
 
@@ -89,7 +90,75 @@ public class CharacterController {
     }
 
     // ==================== 2️⃣ SUB-RECURSOS ESPECÍFICOS ====================
+// ==================== 3️⃣ TRANSFORMAÇÕES ====================
 
+
+    /**
+     * GET /characters/{characterId}/transformations/available
+     * Listar transformações disponíveis para desbloquear
+     */
+    @GetMapping("/{characterId}/transformations/available")
+    public ResponseEntity<List<Transformation>> getAvailableTransformations(
+            @PathVariable UUID characterId) {
+        log.info("Getting available transformations for character {}", characterId);
+
+        List<Transformation> transformations = transformationService.getAvailableTransformations(characterId);
+        return ResponseEntity.ok(transformations);
+    }
+
+    /**
+     * POST /characters/{characterId}/transformations/{transformationId}
+     * Desbloquear transformação para personagem
+     */
+    @PostMapping("/{characterId}/transformations/{transformationId}")
+    public ResponseEntity<CharacterTransformation> unlockTransformation(
+            @PathVariable UUID characterId,
+            @PathVariable Integer transformationId) {
+        log.info("Unlocking transformation {} for character {}", transformationId, characterId);
+
+        CharacterTransformation transformation = transformationService.unlockTransformation(characterId, transformationId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(transformation);
+    }
+
+    /**
+     * GET /characters/{characterId}/transformations
+     * Listar todas as transformações do personagem
+     */
+    @GetMapping("/{characterId}/transformations")
+    public ResponseEntity<List<CharacterTransformation>> getCharacterTransformations(
+            @PathVariable UUID characterId) {
+        log.info("Getting transformations for character {}", characterId);
+
+        List<CharacterTransformation> transformations = transformationService.getCharacterTransformations(characterId);
+        return ResponseEntity.ok(transformations);
+    }
+
+    /**
+     * GET /characters/{characterId}/transformations/unlocked
+     * Listar apenas transformações desbloqueadas
+     */
+    @GetMapping("/{characterId}/transformations/unlocked")
+    public ResponseEntity<List<CharacterTransformation>> getUnlockedTransformations(
+            @PathVariable UUID characterId) {
+        log.info("Getting unlocked transformations for character {}", characterId);
+
+        List<CharacterTransformation> transformations = transformationService.getUnlockedTransformations(characterId);
+        return ResponseEntity.ok(transformations);
+    }
+
+    /**
+     * GET /characters/{characterId}/transformations/{transformationId}/unlocked
+     * Verificar se personagem tem transformação específica desbloqueada
+     */
+    @GetMapping("/{characterId}/transformations/{transformationId}/unlocked")
+    public ResponseEntity<Boolean> hasUnlockedTransformation(
+            @PathVariable UUID characterId,
+            @PathVariable Integer transformationId) {
+        log.info("Checking if character {} has unlocked transformation {}", characterId, transformationId);
+
+        boolean unlocked = transformationService.hasUnlockedTransformation(characterId, transformationId);
+        return ResponseEntity.ok(unlocked);
+    }
     // --- Skills ---
 
     /**
@@ -257,4 +326,6 @@ public class CharacterController {
         boolean exists = characterService.characterExists(id);
         return ResponseEntity.ok(exists);
     }
+
+
 }

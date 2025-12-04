@@ -36,7 +36,5 @@ public class CreateSkillDTO {
     @Min(value = 1, message = "Required level must be at least 1")  // ✅ ADICIONAR
     private Integer requiredLevel;
 
-
-
     private Boolean isActive = true;
 }
