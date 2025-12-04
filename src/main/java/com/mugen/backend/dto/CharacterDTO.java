@@ -24,5 +24,5 @@ public class CharacterDTO {
     private String name;
 
     @NotNull(message = "Race ID is required")
-    private Long raceId;
+    private Integer raceId;
 }

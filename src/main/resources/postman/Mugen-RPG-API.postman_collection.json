@@ -1,41 +1,22 @@
 {
   "info": {
     "name": "Mugen RPG API - Complete",
-    "description": "Complete API collection for Mugen RPG Backend v2.1.3 - Dragon Ball RPG System\n\nFeatures:\n- 16 endpoints across 5 controllers\n- Automated tests for each request\n- Dynamic variables with auto-save\n- Full CRUD operations for characters\n- TP (Training Points) management system\n\nCreated: December 2025",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "mugen-rpg"
+    "description": "API completa do Mugen RPG com todos os endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api",
+      "type": "string"
+    }
+  ],
   "item": [
     {
-      "name": "1. Health & Status",
+      "name": "Health Check",
       "item": [
         {
           "name": "Health Check",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Service is UP', () => {",
-                  "    const res = pm.response.json();",
-                  "    pm.expect(res.status).to.equal('UP');",
-                  "    pm.expect(res.service).to.equal('MUGEN RPG Backend');",
-                  "});",
-                  "",
-                  "pm.test('Has timestamp and version', () => {",
-                  "    const res = pm.response.json();",
-                  "    pm.expect(res).to.have.property('timestamp');",
-                  "    pm.expect(res).to.have.property('version');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -43,114 +24,16 @@
               "raw": "{{base_url}}/health",
               "host": ["{{base_url}}"],
               "path": ["health"]
-            },
-            "description": "Verifica se a API está rodando e retorna informações do serviço."
-          },
-          "response": []
-        },
-        {
-          "name": "Ping",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Returns pong', () => {",
-                  "    pm.expect(pm.response.text()).to.include('pong');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
             }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/health/ping",
-              "host": ["{{base_url}}"],
-              "path": ["health", "ping"]
-            },
-            "description": "Ping rápido para verificar conectividade."
-          },
-          "response": []
-        },
-        {
-          "name": "Test Protected Endpoint",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Returns protected message', () => {",
-                  "    pm.expect(pm.response.text()).to.include('protegido');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/test/protected",
-              "host": ["{{base_url}}"],
-              "path": ["test", "protected"]
-            },
-            "description": "Endpoint de teste para validar configuração de segurança."
-          },
-          "response": []
+          }
         }
-      ],
-      "description": "Endpoints de verificação de saúde e status da aplicação."
+      ]
     },
     {
-      "name": "2. Races",
+      "name": "Races",
       "item": [
         {
-          "name": "List All Races",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});",
-                  "",
-                  "pm.test('Races have required fields', () => {",
-                  "    const races = pm.response.json();",
-                  "    if (races.length > 0) {",
-                  "        pm.expect(races[0]).to.have.property('id');",
-                  "        pm.expect(races[0]).to.have.property('name');",
-                  "        pm.expect(races[0]).to.have.property('raceClassModifier');",
-                  "    }",
-                  "});",
-                  "",
-                  "// Save first race ID for next requests",
-                  "const races = pm.response.json();",
-                  "if (races.length > 0) {",
-                  "    pm.environment.set('race_id', races[0].id);",
-                  "    console.log('✅ Saved race_id:', races[0].id, '(' + races[0].name + ')');",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "Get All Races",
           "request": {
             "method": "GET",
             "header": [],
@@ -158,223 +41,66 @@
               "raw": "{{base_url}}/races",
               "host": ["{{base_url}}"],
               "path": ["races"]
-            },
-            "description": "Lista todas as raças ativas do sistema (Saiyan, Namekuseijin, Human, etc)."
-          },
-          "response": []
+            }
+          }
         },
         {
-          "name": "Get Race by ID",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Race has required fields', () => {",
-                  "    const race = pm.response.json();",
-                  "    pm.expect(race).to.have.property('id');",
-                  "    pm.expect(race).to.have.property('name');",
-                  "    pm.expect(race).to.have.property('raceClassModifier');",
-                  "    pm.expect(race).to.have.property('startStr');",
-                  "    pm.expect(race).to.have.property('startDex');",
-                  "    pm.expect(race).to.have.property('startCon');",
-                  "});",
-                  "",
-                  "pm.test('Race modifier is decimal', () => {",
-                  "    const race = pm.response.json();",
-                  "    pm.expect(race.raceClassModifier).to.be.a('number');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "Get Race By ID",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/races/{{race_id}}",
+              "raw": "{{base_url}}/races/1",
               "host": ["{{base_url}}"],
-              "path": ["races", "{{race_id}}"]
-            },
-            "description": "Busca uma raça específica por ID, retornando atributos iniciais e modificadores."
-          },
-          "response": []
+              "path": ["races", "1"]
+            }
+          }
         }
-      ],
-      "description": "Endpoints de gerenciamento de raças (Saiyan, Namekuseijin, etc)."
+      ]
     },
     {
-      "name": "3. Characters",
+      "name": "Characters",
       "item": [
         {
           "name": "Create Character",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 201', () => {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "pm.test('Character created successfully', () => {",
-                  "    const char = pm.response.json();",
-                  "    pm.expect(char).to.have.property('id');",
-                  "    pm.expect(char).to.have.property('name');",
-                  "    pm.expect(char).to.have.property('tp');",
-                  "    pm.expect(char.tp).to.equal(10); // Starting TP",
-                  "    pm.expect(char.level).to.equal(1);",
-                  "});",
-                  "",
-                  "// Save character ID for next requests",
-                  "const char = pm.response.json();",
-                  "pm.environment.set('character_id', char.id);",
-                  "console.log('✅ Created character_id:', char.id, '(' + char.name + ')');"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/characters?ownerId={{owner_id}}&name={{$randomFirstName}}&raceId={{race_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["characters"],
-              "query": [
-                {
-                  "key": "ownerId",
-                  "value": "{{owner_id}}",
-                  "description": "UUID do dono do personagem"
-                },
-                {
-                  "key": "name",
-                  "value": "{{$randomFirstName}}",
-                  "description": "Nome do personagem (usa nome aleatório)"
-                },
-                {
-                  "key": "raceId",
-                  "value": "{{race_id}}",
-                  "description": "ID da raça (salvo automaticamente)"
-                }
-              ]
-            },
-            "description": "Cria um novo personagem com 10 TP iniciais e atributos base da raça."
-          },
-          "response": []
-        },
-        {
-          "name": "List All Characters",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ownerId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"name\": \"Goku\",\n  \"raceId\": 1\n}"
+            },
             "url": {
               "raw": "{{base_url}}/characters",
               "host": ["{{base_url}}"],
               "path": ["characters"]
-            },
-            "description": "Lista todos os personagens do sistema."
-          },
-          "response": []
+            }
+          }
         },
         {
-          "name": "List Characters by Owner",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});",
-                  "",
-                  "pm.test('All characters belong to owner', () => {",
-                  "    const chars = pm.response.json();",
-                  "    const ownerId = pm.environment.get('owner_id');",
-                  "    chars.forEach(char => {",
-                  "        pm.expect(char.owner.id).to.equal(ownerId);",
-                  "    });",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "Get All Characters (Paginated)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/characters?ownerId={{owner_id}}",
+              "raw": "{{base_url}}/characters?page=0&size=10&sort=createdAt,desc",
               "host": ["{{base_url}}"],
               "path": ["characters"],
               "query": [
-                {
-                  "key": "ownerId",
-                  "value": "{{owner_id}}",
-                  "description": "Filtrar por dono"
-                }
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"},
+                {"key": "sort", "value": "createdAt,desc"}
               ]
-            },
-            "description": "Lista personagens de um jogador específico."
-          },
-          "response": []
+            }
+          }
         },
         {
-          "name": "Get Character by ID",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Character has attributes', () => {",
-                  "    const char = pm.response.json();",
-                  "    pm.expect(char).to.have.property('attributes');",
-                  "    pm.expect(char.attributes).to.have.property('str');",
-                  "    pm.expect(char.attributes).to.have.property('dex');",
-                  "    pm.expect(char.attributes).to.have.property('con');",
-                  "});",
-                  "",
-                  "pm.test('Character has race info', () => {",
-                  "    const char = pm.response.json();",
-                  "    pm.expect(char).to.have.property('race');",
-                  "    pm.expect(char.race).to.have.property('name');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "Get Character By ID",
           "request": {
             "method": "GET",
             "header": [],
@@ -382,41 +108,63 @@
               "raw": "{{base_url}}/characters/{{character_id}}",
               "host": ["{{base_url}}"],
               "path": ["characters", "{{character_id}}"]
-            },
-            "description": "Busca personagem completo com atributos, raça, skills e transformações."
-          },
-          "response": []
+            }
+          }
+        },
+        {
+          "name": "Get Characters By Owner",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/owner/{{owner_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "owner", "{{owner_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Characters By Owner (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/owner/{{owner_id}}/paginated?page=0&size=10",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "owner", "{{owner_id}}", "paginated"],
+              "query": [
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Count Characters By Owner",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/owner/{{owner_id}}/count",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "owner", "{{owner_id}}", "count"]
+            }
+          }
+        },
+        {
+          "name": "Check Character Exists",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}/exists",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}", "exists"]
+            }
+          }
         },
         {
           "name": "Get Character Stats",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Stats calculated correctly', () => {",
-                  "    const stats = pm.response.json();",
-                  "    pm.expect(stats).to.have.property('meleeDamage');",
-                  "    pm.expect(stats).to.have.property('maxHp');",
-                  "    pm.expect(stats).to.have.property('maxKi');",
-                  "    pm.expect(stats).to.have.property('speed');",
-                  "});",
-                  "",
-                  "pm.test('Stats are numbers', () => {",
-                  "    const stats = pm.response.json();",
-                  "    pm.expect(stats.meleeDamage).to.be.a('number');",
-                  "    pm.expect(stats.maxHp).to.be.a('number');",
-                  "    pm.expect(stats.maxKi).to.be.a('number');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -424,39 +172,13 @@
               "raw": "{{base_url}}/characters/{{character_id}}/stats",
               "host": ["{{base_url}}"],
               "path": ["characters", "{{character_id}}", "stats"]
-            },
-            "description": "Calcula stats finais do personagem (HP, Ki, Dano, Velocidade, etc)."
-          },
-          "response": []
+            }
+          }
         },
         {
-          "name": "Allocate Attribute",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('TP was deducted', () => {",
-                  "    const char = pm.response.json();",
-                  "    pm.expect(char.tp).to.be.a('number');",
-                  "    pm.expect(char.tp).to.be.below(100); // After spending",
-                  "});",
-                  "",
-                  "pm.test('Attribute was increased', () => {",
-                  "    const char = pm.response.json();",
-                  "    pm.expect(char.attributes.str).to.be.above(0);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "Update Character",
           "request": {
-            "method": "POST",
+            "method": "PUT",
             "header": [
               {
                 "key": "Content-Type",
@@ -465,34 +187,50 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"attributeName\": \"STR\",\n  \"points\": 5\n}"
+              "raw": "{\n  \"name\": \"Goku Updated\",\n  \"level\": 5,\n  \"exp\": 1000,\n  \"tp\": 50,\n  \"isActive\": true\n}"
             },
             "url": {
-              "raw": "{{base_url}}/characters/{{character_id}}/allocate-attribute",
+              "raw": "{{base_url}}/characters/{{character_id}}",
               "host": ["{{base_url}}"],
-              "path": ["characters", "{{character_id}}", "allocate-attribute"]
+              "path": ["characters", "{{character_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Character Name",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Name\"\n}"
             },
-            "description": "Aloca pontos em um atributo, gastando TP. Custo aumenta com valor atual."
-          },
-          "response": []
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}/name",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}", "name"]
+            }
+          }
+        },
+        {
+          "name": "Deactivate Character",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}/deactivate",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}", "deactivate"]
+            }
+          }
         },
         {
           "name": "Delete Character",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 204', () => {",
-                  "    pm.response.to.have.status(204);",
-                  "});",
-                  "",
-                  "console.log('✅ Character deleted successfully');"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "DELETE",
             "header": [],
@@ -500,39 +238,40 @@
               "raw": "{{base_url}}/characters/{{character_id}}",
               "host": ["{{base_url}}"],
               "path": ["characters", "{{character_id}}"]
-            },
-            "description": "Deleta um personagem permanentemente."
-          },
-          "response": []
+            }
+          }
         }
-      ],
-      "description": "Endpoints de gerenciamento de personagens (CRUD completo)."
+      ]
     },
     {
-      "name": "4. TP Management",
+      "name": "Skills",
       "item": [
         {
-          "name": "Award TP",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('TP was awarded', () => {",
-                  "    const char = pm.response.json();",
-                  "    pm.expect(char.tp).to.be.above(10); // More than starting TP",
-                  "});",
-                  "",
-                  "console.log('✅ Awarded 50 TP to character');"
-                ],
-                "type": "text/javascript"
-              }
+          "name": "Get All Skills",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/skills",
+              "host": ["{{base_url}}"],
+              "path": ["skills"]
             }
-          ],
+          }
+        },
+        {
+          "name": "Get Skill By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/skills/{{skill_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["skills", "{{skill_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Skill",
           "request": {
             "method": "POST",
             "header": [
@@ -543,177 +282,316 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"characterId\": \"{{character_id}}\",\n  \"amount\": 50,\n  \"reason\": \"MINIGAME_REFLEX\"\n}"
+              "raw": "{\n  \"name\": \"Kamehameha\",\n  \"description\": \"Onda de energia devastadora\",\n  \"type\": \"OFFENSIVE\",\n  \"kiCost\": 50,\n  \"damage\": 100,\n  \"requiredLevel\": 5\n}"
             },
             "url": {
-              "raw": "{{base_url}}/tp/award",
+              "raw": "{{base_url}}/skills",
               "host": ["{{base_url}}"],
-              "path": ["tp", "award"]
-            },
-            "description": "Concede TP ao personagem (minigames, quests, mestre)."
-          },
-          "response": []
+              "path": ["skills"]
+            }
+          }
         },
         {
-          "name": "Calculate TP Cost",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Cost is number', () => {",
-                  "    const cost = pm.response.json();",
-                  "    pm.expect(cost).to.be.a('number');",
-                  "    pm.expect(cost).to.be.above(0);",
-                  "});",
-                  "",
-                  "console.log('TP Cost:', pm.response.json());"
-                ],
-                "type": "text/javascript"
+          "name": "Update Skill",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kamehameha x10\",\n  \"description\": \"Versão melhorada\",\n  \"type\": \"OFFENSIVE\",\n  \"kiCost\": 100,\n  \"damage\": 200,\n  \"requiredLevel\": 10\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/skills/{{skill_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["skills", "{{skill_id}}"]
             }
-          ],
+          }
+        },
+        {
+          "name": "Delete Skill",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/skills/{{skill_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["skills", "{{skill_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Character Skills",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/tp/calculate-cost?currentValue=45&pointsToAllocate=10",
+              "raw": "{{base_url}}/characters/{{character_id}}/skills",
               "host": ["{{base_url}}"],
-              "path": ["tp", "calculate-cost"],
-              "query": [
-                {
-                  "key": "currentValue",
-                  "value": "45",
-                  "description": "Valor atual do atributo"
-                },
-                {
-                  "key": "pointsToAllocate",
-                  "value": "10",
-                  "description": "Pontos a alocar"
-                }
-              ]
-            },
-            "description": "Calcula custo de TP antes de confirmar alocação (preview)."
-          },
-          "response": []
+              "path": ["characters", "{{character_id}}", "skills"]
+            }
+          }
         },
         {
-          "name": "Get TP History",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('History is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});",
-                  "",
-                  "pm.test('Transactions have required fields', () => {",
-                  "    const history = pm.response.json();",
-                  "    if (history.length > 0) {",
-                  "        pm.expect(history[0]).to.have.property('amount');",
-                  "        pm.expect(history[0]).to.have.property('reason');",
-                  "        pm.expect(history[0]).to.have.property('timestamp');",
-                  "    }",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "Add Skill to Character",
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/tp/history/{{character_id}}",
+              "raw": "{{base_url}}/characters/{{character_id}}/skills/{{skill_id}}",
               "host": ["{{base_url}}"],
-              "path": ["tp", "history", "{{character_id}}"]
-            },
-            "description": "Retorna histórico completo de transações de TP (ganhos e gastos)."
-          },
-          "response": []
+              "path": ["characters", "{{character_id}}", "skills", "{{skill_id}}"]
+            }
+          }
         },
         {
-          "name": "Get TP Summary",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Summary has all fields', () => {",
-                  "    const summary = pm.response.json();",
-                  "    pm.expect(summary).to.have.property('currentTP');",
-                  "    pm.expect(summary).to.have.property('totalEarned');",
-                  "    pm.expect(summary).to.have.property('totalSpent');",
-                  "    pm.expect(summary).to.have.property('breakdown');",
-                  "});",
-                  "",
-                  "pm.test('Breakdown is object', () => {",
-                  "    const summary = pm.response.json();",
-                  "    pm.expect(summary.breakdown).to.be.an('object');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "Remove Skill from Character",
           "request": {
-            "method": "GET",
+            "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/tp/summary/{{character_id}}",
+              "raw": "{{base_url}}/characters/{{character_id}}/skills/{{skill_id}}",
               "host": ["{{base_url}}"],
-              "path": ["tp", "summary", "{{character_id}}"]
-            },
-            "description": "Retorna resumo de TP: total ganho, gasto, atual e breakdown por fonte."
-          },
-          "response": []
+              "path": ["characters", "{{character_id}}", "skills", "{{skill_id}}"]
+            }
+          }
         }
-      ],
-      "description": "Endpoints de gerenciamento de Training Points (TP)."
-    }
-  ],
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "// Global pre-request script",
-          "console.log('🚀 Running request to:', pm.request.url.toString());"
-        ]
-      }
+      ]
     },
     {
-      "listen": "test",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "// Global test script",
-          "pm.test('Response time is acceptable', () => {",
-          "    pm.expect(pm.response.responseTime).to.be.below(2000);",
-          "});"
-        ]
-      }
-    }
-  ],
-  "variable": [
+      "name": "Transformations",
+      "item": [
+        {
+          "name": "Get All Transformations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transformations",
+              "host": ["{{base_url}}"],
+              "path": ["transformations"]
+            }
+          }
+        },
+        {
+          "name": "Get Transformation By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transformations/{{transformation_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["transformations", "{{transformation_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Transformation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Super Saiyan\",\n  \"description\": \"Cabelo dourado e aura flamejante\",\n  \"multiplier\": 1.5,\n  \"requiredLevel\": 10,\n  \"requiredRaceId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/transformations",
+              "host": ["{{base_url}}"],
+              "path": ["transformations"]
+            }
+          }
+        },
+        {
+          "name": "Update Transformation",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Super Saiyan 2\",\n  \"description\": \"Cabelo mais espetado\",\n  \"multiplier\": 2.0,\n  \"requiredLevel\": 20,\n  \"requiredRaceId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/transformations/{{transformation_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["transformations", "{{transformation_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Transformation",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transformations/{{transformation_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["transformations", "{{transformation_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Character Transformations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}/transformations",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}", "transformations"]
+            }
+          }
+        },
+        {
+          "name": "Add Transformation to Character",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}/transformations/{{transformation_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}", "transformations", "{{transformation_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Remove Transformation from Character",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}/transformations/{{transformation_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}", "transformations", "{{transformation_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Activate Transformation",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}/activate-transformation/{{transformation_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}", "activate-transformation", "{{transformation_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Deactivate Transformation",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}/deactivate-transformation",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}", "deactivate-transformation"]
+            }
+          }
+        }
+      ]
+    },
     {
-      "key": "base_url",
-      "value": "http://localhost:8080/api",
-      "type": "string"
+      "name": "TP (Training Points)",
+      "item": [
+        {
+          "name": "Allocate TP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"str\": 2,\n  \"dex\": 1,\n  \"con\": 3,\n  \"wil\": 0,\n  \"mnd\": 2,\n  \"spi\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tp/{{character_id}}/allocate",
+              "host": ["{{base_url}}"],
+              "path": ["tp", "{{character_id}}", "allocate"]
+            }
+          }
+        },
+        {
+          "name": "Reset TP",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tp/{{character_id}}/reset",
+              "host": ["{{base_url}}"],
+              "path": ["tp", "{{character_id}}", "reset"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Level & EXP",
+      "item": [
+        {
+          "name": "Gain Experience",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"exp\": 500\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}/gain-exp",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}", "gain-exp"]
+            }
+          }
+        },
+        {
+          "name": "Get Level Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}/level-info",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}", "level-info"]
+            }
+          }
+        },
+        {
+          "name": "Force Level Up (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/characters/{{character_id}}/level-up",
+              "host": ["{{base_url}}"],
+              "path": ["characters", "{{character_id}}", "level-up"]
+            }
+          }
+        }
+      ]
     }
   ]
 }

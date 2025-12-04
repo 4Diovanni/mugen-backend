@@ -220,4 +220,21 @@ public class GlobalExceptionHandler {
         }
         return sb.toString();
     }
+
+    /**
+     * Skill não encontrada
+     */
+    @ExceptionHandler(SkillNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSkillNotFound(SkillNotFoundException ex) {
+        log.warn("Skill not found: {}", ex.getMessage());
+
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("Not Found")
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
 }

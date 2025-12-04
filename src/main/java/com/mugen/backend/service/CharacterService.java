@@ -1,20 +1,20 @@
 package com.mugen.backend.service;
 
+import com.mugen.backend.dto.CharacterDTO;
 import com.mugen.backend.dto.UpdateCharacterDTO;
+import com.mugen.backend.entity.*;
 import com.mugen.backend.entity.Character;
-import com.mugen.backend.entity.CharacterAttribute;
-import com.mugen.backend.entity.Race;
-import com.mugen.backend.entity.User;
 import com.mugen.backend.exception.CharacterNotFoundException;
-import com.mugen.backend.repository.CharacterRepository;
-import com.mugen.backend.repository.RaceRepository;
-import com.mugen.backend.repository.UserRepository;
+import com.mugen.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.mugen.backend.entity.CharacterSkillId;
+
+
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +26,8 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class CharacterService {
 
+    private final SkillRepository skillRepository;
+    private final CharacterSkillRepository characterSkillRepository;
     private final CharacterRepository characterRepository;
     private final UserRepository userRepository;
     private final RaceRepository raceRepository;
@@ -73,42 +75,39 @@ public class CharacterService {
     // ========== CRIAÇÃO DE PERSONAGEM ==========
 
     @Transactional
-    public Character createCharacter(UUID ownerId, String name, Integer raceId) {
-        log.info("Request to create character {} for owner {}", name, ownerId);
+    public Character createCharacter(CharacterDTO dto) {
+        log.info("Creating character: {} for owner: {}", dto.getName(), dto.getOwnerId());
 
-        // Validar se o usuário existe
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + ownerId));
-
-        // Validar se a raça existe
-        Race race = raceRepository.findById(raceId)
-                .orElseThrow(() -> new IllegalArgumentException("Race not found with id: " + raceId));
-
-        // Validar limite de personagens por usuário
-        long characterCount = characterRepository.countByOwnerId(ownerId);
-        if (characterCount >= MAX_CHARACTERS_PER_USER) {
-            throw new IllegalStateException("User already has the maximum number of characters (" + MAX_CHARACTERS_PER_USER + ")");
+        // primeiro antes de validar os demais
+        // Validar nome único para o mesmo owner
+        if (characterRepository.existsByOwnerIdAndName(dto.getOwnerId(), dto.getName())) {
+            throw new IllegalStateException("User already has a character with name: " + dto.getName());
         }
 
-        // Validar nome único por usuário
-        if (characterRepository.existsByOwnerIdAndName(ownerId, name)) {
-            throw new IllegalStateException("User already has a character with name: " + name);
-        }
+        // Buscar owner
+        User owner = userRepository.findById(dto.getOwnerId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + dto.getOwnerId()));
+
+        // Buscar race
+        Race race = raceRepository.findById(dto.getRaceId())
+                .orElseThrow(() -> new RuntimeException("Race not found with id: " + dto.getRaceId()));
+
+
 
         // Criar personagem
         Character character = Character.builder()
                 .owner(owner)
-                .name(name)
+                .name(dto.getName())
                 .race(race)
                 .level(1)
                 .exp(0L)
-                .tp(STARTING_TP)
+                .tp(10)
                 .isActive(true)
                 .build();
 
         // Criar atributos baseados na raça
         CharacterAttribute attributes = CharacterAttribute.builder()
-                .character(character)
+//                .character(character)
                 .str(race.getStartStr())
                 .dex(race.getStartDex())
                 .con(race.getStartCon())
@@ -119,13 +118,34 @@ public class CharacterService {
 
         character.setAttributes(attributes);
 
-        Character savedCharacter = characterRepository.save(character);
-        log.info("Created character {} with id {}", savedCharacter.getName(), savedCharacter.getId());
+        // Salvar
+        Character saved = characterRepository.save(character);
+        log.info("Character created successfully with id: {}", saved.getId());
 
-        return savedCharacter;
+        return saved;
     }
 
     // ========== NOVOS MÉTODOS DE CONSULTA ==========
+
+    /**
+     * Buscar todos os personagens (sem paginação)
+     * Usado principalmente em testes e casos simples
+     */
+    @Transactional(readOnly = true)
+    public List<Character> getAllCharacters() {
+        log.info("Finding all characters without pagination");
+        return characterRepository.findAll();
+    }
+
+    /**
+     * Buscar todos os personagens com paginação
+     * Usado no endpoint GET /api/characters
+     */
+    @Transactional(readOnly = true)
+    public Page<Character> getAllCharacters(Pageable pageable) {
+        log.info("Finding all characters with pagination");
+        return characterRepository.findAllWithDetails(pageable);
+    }
 
     @Transactional(readOnly = true)
     public Character getCharacterById(UUID id) {
@@ -135,13 +155,7 @@ public class CharacterService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Character> getAllCharacters(Pageable pageable) {
-        log.info("Finding all characters with pagination");
-        return characterRepository.findAllWithDetails(pageable); // ✅ Usar query com JOIN FETCH
-    }
-
-    @Transactional(readOnly = true)
-    public List<Character> getCharactersByOwnerId(UUID ownerId) {
+    public List<Character> getCharactersByOwner(UUID ownerId) {
         log.info("Finding characters by owner id: {}", ownerId);
 
         // Validar se o usuário existe
@@ -153,7 +167,7 @@ public class CharacterService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Character> getCharactersByOwnerIdPaginated(UUID ownerId, Pageable pageable) {
+    public Page<Character> getCharactersByOwnerPaginated(UUID ownerId, Pageable pageable) {
         log.info("Finding characters by owner id: {} with pagination", ownerId);
 
         // Validar se o usuário existe
@@ -165,7 +179,7 @@ public class CharacterService {
     }
 
     @Transactional(readOnly = true)
-    public long countCharactersByOwnerId(UUID ownerId) {
+    public long countCharactersByOwner(UUID ownerId) {
         log.info("Counting characters for owner: {}", ownerId);
         return characterRepository.countByOwnerId(ownerId);
     }
@@ -174,22 +188,6 @@ public class CharacterService {
     public boolean characterExists(UUID id) {
         return characterRepository.existsById(id);
     }
-
-
-
-    // ========== ATUALIZAÇÃO E DELEÇÃO ==========
-
-    @Transactional
-    public Character updateCharacter(Character character) {
-        log.info("Updating character: {}", character.getName());
-        return characterRepository.save(character);
-    }
-
-//    @Transactional
-//    public void deleteCharacter(UUID characterId) {
-//        log.info("Deleting character: {}", characterId);
-//        characterRepository.deleteById(characterId);
-//    }
 
     // ========== ATUALIZAÇÃO ==========
 
@@ -247,7 +245,7 @@ public class CharacterService {
         return updated;
     }
 
-// ========== DELEÇÃO ==========
+    // ========== DELEÇÃO ==========
 
     @Transactional
     public void deleteCharacter(UUID id) {
@@ -274,7 +272,6 @@ public class CharacterService {
         log.info("Character soft deleted: {}", id);
     }
 
-
     // ========== UTILITÁRIOS ==========
 
     public boolean isOwner(UUID characterId, UUID userId) {
@@ -285,5 +282,82 @@ public class CharacterService {
 
     public long countByOwnerId(UUID ownerId) {
         return characterRepository.countByOwnerId(ownerId);
+    }
+
+    @Transactional
+    public Character updateCharacter(Character character) {
+        log.info("Updating character: {}", character.getName());
+        return characterRepository.save(character);
+    }
+
+    // ========== SKILLS ==========
+
+    /**
+     * Adicionar skill ao personagem
+     * ✅ CORRIGIDO: Usar CharacterSkillId (standalone class) ao invés de CharacterSkill.CharacterSkillId
+     */
+    @Transactional
+    public CharacterSkill addSkillToCharacter(UUID characterId, Integer skillId) {
+        log.info("Adding skill {} to character {}", skillId, characterId);
+
+        // 1️⃣ Validar se personagem existe
+        Character character = characterRepository.findById(characterId)
+                .orElseThrow(() -> new CharacterNotFoundException(characterId));
+
+        // 2️⃣ Validar se skill existe
+        Skill skill = skillRepository.findById(skillId)
+                .orElseThrow(() -> new RuntimeException("Skill not found with id: " + skillId));
+
+        // 3️⃣ Verificar se personagem já tem essa skill
+        CharacterSkillId id = new CharacterSkillId(characterId, skillId);
+        if (characterSkillRepository.existsById(id)) {
+            throw new IllegalStateException("Character already has this skill");
+        }
+
+        // 4️⃣ Criar CharacterSkill com as associações
+        CharacterSkill characterSkill = CharacterSkill.builder()
+                .id(id)  // ✅ Usar CharacterSkillId (standalone class)
+                .character(character)
+                .skill(skill)
+                .currentLevel(1)
+                .build();
+
+        // 5️⃣ Salvar
+        CharacterSkill saved = characterSkillRepository.save(characterSkill);
+        log.info("Skill {} added to character {}", skillId, characterId);
+
+        return saved;
+    }
+
+    /**
+     * Listar skills do personagem
+     */
+    @Transactional(readOnly = true)
+    public List<CharacterSkill> getCharacterSkills(UUID characterId) {
+        log.info("Getting skills for character {}", characterId);
+
+        // Validar se personagem existe
+        if (!characterRepository.existsById(characterId)) {
+            throw new CharacterNotFoundException(characterId);
+        }
+
+        return characterSkillRepository.findByCharacterId(characterId);
+    }
+
+    /**
+     * Remover skill do personagem
+     */
+    @Transactional
+    public void removeSkillFromCharacter(UUID characterId, Integer skillId) {
+        log.info("Removing skill {} from character {}", skillId, characterId);
+
+        CharacterSkillId id = new CharacterSkillId(characterId, skillId);
+
+        if (!characterSkillRepository.existsById(id)) {
+            throw new RuntimeException("CharacterSkill not found");
+        }
+
+        characterSkillRepository.deleteById(id);
+        log.info("Skill {} removed from character {}", skillId, characterId);
     }
 }

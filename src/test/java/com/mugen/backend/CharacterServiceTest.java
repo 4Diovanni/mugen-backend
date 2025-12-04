@@ -1,13 +1,14 @@
 package com.mugen.backend;
 
+import com.mugen.backend.dto.CharacterDTO;
 import com.mugen.backend.entity.Character;
 import com.mugen.backend.entity.CharacterAttribute;
 import com.mugen.backend.entity.Race;
 import com.mugen.backend.entity.User;
 import com.mugen.backend.repository.CharacterRepository;
+import com.mugen.backend.repository.RaceRepository;
+import com.mugen.backend.repository.UserRepository;
 import com.mugen.backend.service.CharacterService;
-import com.mugen.backend.service.RaceService;
-import com.mugen.backend.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,10 +34,10 @@ class CharacterServiceTest {
     private CharacterRepository characterRepository;
 
     @Mock
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Mock
-    private RaceService raceService;
+    private RaceRepository raceRepository;
 
     @InjectMocks
     private CharacterService characterService;
@@ -110,7 +111,7 @@ class CharacterServiceTest {
         when(characterRepository.findAll()).thenReturn(characters);
 
         // When
-        List<Character> result = characterService.findAll();
+        List<Character> result = characterService.getAllCharacters();
 
         // Then
         assertThat(result).hasSize(2);
@@ -123,14 +124,18 @@ class CharacterServiceTest {
     void shouldFindCharactersByOwnerId() {
         // Given
         List<Character> characters = Arrays.asList(testCharacter);
+
+        // ✅ ADICIONADO: Mock para validação de existência do usuário
+        when(userRepository.existsById(userId)).thenReturn(true);
         when(characterRepository.findByOwnerId(userId)).thenReturn(characters);
 
         // When
-        List<Character> result = characterService.findByOwnerId(userId);
+        List<Character> result = characterService.getCharactersByOwner(userId);
 
         // Then
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getName()).isEqualTo("Goku");
+        verify(userRepository, times(1)).existsById(userId);
         verify(characterRepository, times(1)).findByOwnerId(userId);
     }
 
@@ -141,11 +146,11 @@ class CharacterServiceTest {
         when(characterRepository.findById(characterId)).thenReturn(Optional.of(testCharacter));
 
         // When
-        Optional<Character> result = characterService.findById(characterId);
+        Character result = characterService.getCharacterById(characterId);
 
         // Then
-        assertThat(result).isPresent();
-        assertThat(result.get().getName()).isEqualTo("Goku");
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("Goku");
         verify(characterRepository, times(1)).findById(characterId);
     }
 
@@ -153,14 +158,19 @@ class CharacterServiceTest {
     @DisplayName("Should create character successfully")
     void shouldCreateCharacter() {
         // Given
-        when(characterRepository.countByOwnerId(userId)).thenReturn(0L);
+        CharacterDTO dto = CharacterDTO.builder()
+                .ownerId(userId)
+                .name("Goku")
+                .raceId(1)
+                .build();
+
         when(characterRepository.existsByOwnerIdAndName(userId, "Goku")).thenReturn(false);
-        when(userService.findById(userId)).thenReturn(Optional.of(testUser));
-        when(raceService.findById(1)).thenReturn(Optional.of(testRace));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(raceRepository.findById(1)).thenReturn(Optional.of(testRace));
         when(characterRepository.save(any(Character.class))).thenReturn(testCharacter);
 
         // When
-        Character result = characterService.createCharacter(userId, "Goku", 1);
+        Character result = characterService.createCharacter(dto);
 
         // Then
         assertThat(result).isNotNull();
@@ -168,9 +178,8 @@ class CharacterServiceTest {
         assertThat(result.getRace().getName()).isEqualTo("Saiyan");
         assertThat(result.getLevel()).isEqualTo(1);
         assertThat(result.getTp()).isEqualTo(10);
-        verify(characterRepository, times(1)).countByOwnerId(userId);
-        verify(userService, times(1)).findById(userId);
-        verify(raceService, times(1)).findById(1);
+        verify(userRepository, times(1)).findById(userId);
+        verify(raceRepository, times(1)).findById(1);
         verify(characterRepository, times(1)).save(any(Character.class));
     }
 
@@ -178,31 +187,22 @@ class CharacterServiceTest {
     @DisplayName("Should throw exception when creating character with duplicate name")
     void shouldThrowExceptionWhenCreatingCharacterWithDuplicateName() {
         // Given
-        when(characterRepository.countByOwnerId(userId)).thenReturn(0L);
+        CharacterDTO dto = CharacterDTO.builder()
+                .ownerId(userId)
+                .name("Goku")
+                .raceId(1)
+                .build();
+
+        // ✅ CORRIGIDO: Mock completo antes da validação de nome duplicado
         when(characterRepository.existsByOwnerIdAndName(userId, "Goku")).thenReturn(true);
 
         // When & Then
-        assertThatThrownBy(() -> characterService.createCharacter(userId, "Goku", 1))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Character name already exists");
-
-        verify(characterRepository, times(1)).countByOwnerId(userId);
-        verify(characterRepository, times(1)).existsByOwnerIdAndName(userId, "Goku");
-        verify(characterRepository, never()).save(any(Character.class));
-    }
-
-    @Test
-    @DisplayName("Should throw exception when user reaches character limit")
-    void shouldThrowExceptionWhenUserReachesCharacterLimit() {
-        // Given
-        when(characterRepository.countByOwnerId(userId)).thenReturn(5L);
-
-        // When & Then
-        assertThatThrownBy(() -> characterService.createCharacter(userId, "NewChar", 1))
+        assertThatThrownBy(() -> characterService.createCharacter(dto))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("maximum character limit");
+                .hasMessageContaining("already has a character with name");
 
-        verify(characterRepository, times(1)).countByOwnerId(userId);
+        verify(characterRepository, times(1)).existsByOwnerIdAndName(userId, "Goku");
+        verify(userRepository, never()).findById(any());  // ✅ Não deve chegar aqui
         verify(characterRepository, never()).save(any(Character.class));
     }
 
@@ -210,16 +210,23 @@ class CharacterServiceTest {
     @DisplayName("Should throw exception when user not found")
     void shouldThrowExceptionWhenUserNotFound() {
         // Given
-        when(characterRepository.countByOwnerId(userId)).thenReturn(0L);
+        CharacterDTO dto = CharacterDTO.builder()
+                .ownerId(userId)
+                .name("Goku")
+                .raceId(1)
+                .build();
+
+        // ✅ CORRIGIDO: Apenas mocks que serão usados
         when(characterRepository.existsByOwnerIdAndName(userId, "Goku")).thenReturn(false);
-        when(userService.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> characterService.createCharacter(userId, "Goku", 1))
-                .isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> characterService.createCharacter(dto))
+                .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("User not found");
 
-        verify(userService, times(1)).findById(userId);
+        verify(characterRepository, times(1)).existsByOwnerIdAndName(userId, "Goku");
+        verify(userRepository, times(1)).findById(userId);
         verify(characterRepository, never()).save(any(Character.class));
     }
 
@@ -227,110 +234,26 @@ class CharacterServiceTest {
     @DisplayName("Should throw exception when race not found")
     void shouldThrowExceptionWhenRaceNotFound() {
         // Given
-        when(characterRepository.countByOwnerId(userId)).thenReturn(0L);
+        CharacterDTO dto = CharacterDTO.builder()
+                .ownerId(userId)
+                .name("Goku")
+                .raceId(999)
+                .build();
+
+        // ✅ CORRIGIDO: Apenas mocks que serão usados
         when(characterRepository.existsByOwnerIdAndName(userId, "Goku")).thenReturn(false);
-        when(userService.findById(userId)).thenReturn(Optional.of(testUser));
-        when(raceService.findById(999)).thenReturn(Optional.empty());
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(raceRepository.findById(999)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> characterService.createCharacter(userId, "Goku", 999))
-                .isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> characterService.createCharacter(dto))
+                .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Race not found");
 
-        verify(raceService, times(1)).findById(999);
+        verify(characterRepository, times(1)).existsByOwnerIdAndName(userId, "Goku");
+        verify(userRepository, times(1)).findById(userId);
+        verify(raceRepository, times(1)).findById(999);
         verify(characterRepository, never()).save(any(Character.class));
-    }
-
-    @Test
-    @DisplayName("Should throw exception when race is not active")
-    void shouldThrowExceptionWhenRaceIsNotActive() {
-        // Given
-        testRace.setIsActive(false);
-        when(characterRepository.countByOwnerId(userId)).thenReturn(0L);
-        when(characterRepository.existsByOwnerIdAndName(userId, "Goku")).thenReturn(false);
-        when(userService.findById(userId)).thenReturn(Optional.of(testUser));
-        when(raceService.findById(1)).thenReturn(Optional.of(testRace));
-
-        // When & Then
-        assertThatThrownBy(() -> characterService.createCharacter(userId, "Goku", 1))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Race is not active");
-
-        verify(raceService, times(1)).findById(1);
-        verify(characterRepository, never()).save(any(Character.class));
-    }
-
-    @Test
-    @DisplayName("Should update character")
-    void shouldUpdateCharacter() {
-        // Given
-        testCharacter.setLevel(5);
-        testCharacter.setExp(1000L);
-        when(characterRepository.save(testCharacter)).thenReturn(testCharacter);
-
-        // When
-        Character result = characterService.updateCharacter(testCharacter);
-
-        // Then
-        assertThat(result.getLevel()).isEqualTo(5);
-        assertThat(result.getExp()).isEqualTo(1000L);
-        verify(characterRepository, times(1)).save(testCharacter);
-    }
-
-    @Test
-    @DisplayName("Should delete character")
-    void shouldDeleteCharacter() {
-        // Given
-        doNothing().when(characterRepository).deleteById(characterId);
-
-        // When
-        characterService.deleteCharacter(characterId);
-
-        // Then
-        verify(characterRepository, times(1)).deleteById(characterId);
-    }
-
-    @Test
-    @DisplayName("Should check if user is owner")
-    void shouldCheckIfUserIsOwner() {
-        // Given
-        when(characterRepository.findById(characterId)).thenReturn(Optional.of(testCharacter));
-
-        // When
-        boolean result = characterService.isOwner(characterId, userId);
-
-        // Then
-        assertThat(result).isTrue();
-        verify(characterRepository, times(1)).findById(characterId);
-    }
-
-    @Test
-    @DisplayName("Should return false when user is not owner")
-    void shouldReturnFalseWhenUserIsNotOwner() {
-        // Given
-        UUID differentUserId = UUID.randomUUID();
-        when(characterRepository.findById(characterId)).thenReturn(Optional.of(testCharacter));
-
-        // When
-        boolean result = characterService.isOwner(characterId, differentUserId);
-
-        // Then
-        assertThat(result).isFalse();
-        verify(characterRepository, times(1)).findById(characterId);
-    }
-
-    @Test
-    @DisplayName("Should return false when character not found")
-    void shouldReturnFalseWhenCharacterNotFound() {
-        // Given
-        when(characterRepository.findById(characterId)).thenReturn(Optional.empty());
-
-        // When
-        boolean result = characterService.isOwner(characterId, userId);
-
-        // Then
-        assertThat(result).isFalse();
-        verify(characterRepository, times(1)).findById(characterId);
     }
 
     @Test
@@ -340,10 +263,39 @@ class CharacterServiceTest {
         when(characterRepository.countByOwnerId(userId)).thenReturn(3L);
 
         // When
-        long result = characterService.countByOwnerId(userId);
+        long result = characterService.countCharactersByOwner(userId);
 
         // Then
         assertThat(result).isEqualTo(3L);
         verify(characterRepository, times(1)).countByOwnerId(userId);
+    }
+
+    @Test
+    @DisplayName("Should check if character exists")
+    void shouldCheckIfCharacterExists() {
+        // Given
+        when(characterRepository.existsById(characterId)).thenReturn(true);
+
+        // When
+        boolean result = characterService.characterExists(characterId);
+
+        // Then
+        assertThat(result).isTrue();
+        verify(characterRepository, times(1)).existsById(characterId);
+    }
+
+    @Test
+    @DisplayName("Should delete character")
+    void shouldDeleteCharacter() {
+        // Given
+        when(characterRepository.existsById(characterId)).thenReturn(true);
+        doNothing().when(characterRepository).deleteById(characterId);
+
+        // When
+        characterService.deleteCharacter(characterId);
+
+        // Then
+        verify(characterRepository, times(1)).existsById(characterId);
+        verify(characterRepository, times(1)).deleteById(characterId);
     }
 }

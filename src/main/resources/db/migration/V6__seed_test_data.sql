@@ -59,16 +59,16 @@ ON CONFLICT (id) DO NOTHING;
 
 -- ✅ Skills com campos corretos (name, description, skill_type, base_tp_cost, max_level)
 INSERT INTO skill (id, name, description, skill_type, base_tp_cost, max_level, is_active, created_at, updated_at) VALUES
-                                                                                                                      (1, 'Kamehameha', 'Onda de energia devastadora', 'OFFENSIVE', 10, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-                                                                                                                      (2, 'Instant Transmission', 'Teletransporte instantâneo', 'UTILITY', 15, 5, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-                                                                                                                      (3, 'Spirit Bomb', 'Esfera de energia espiritual', 'OFFENSIVE', 25, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-                                                                                                                      (4, 'Solar Flare', 'Cegueira temporária', 'UTILITY', 8, 5, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-                                                                                                                      (5, 'Destructo Disc', 'Disco cortante de energia', 'OFFENSIVE', 12, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-                                                                                                                      (6, 'Special Beam Cannon', 'Canhão perfurante de energia', 'OFFENSIVE', 18, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-                                                                                                                      (7, 'Masenko', 'Rajada de energia concentrada', 'OFFENSIVE', 10, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-                                                                                                                      (8, 'Final Flash', 'Explosão final de energia', 'OFFENSIVE', 30, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-                                                                                                                      (9, 'Flight', 'Capacidade de voar', 'UTILITY', 5, 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-                                                                                                                      (10, 'Ki Sense', 'Sentir energia vital', 'UTILITY', 5, 5, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                                                                                                                      (1, 'Kamehameha', 'Onda de energia devastadora', 'ULTIMATE', 10, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+                                                                                                                      (2, 'Instant Transmission', 'Teletransporte instantâneo', 'PASSIVE', 15, 5, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+                                                                                                                      (3, 'Spirit Bomb', 'Esfera de energia espiritual', 'ULTIMATE', 25, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+                                                                                                                      (4, 'Solar Flare', 'Cegueira temporária', 'PASSIVE', 8, 5, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+                                                                                                                      (5, 'Destructo Disc', 'Disco cortante de energia', 'ULTIMATE', 12, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+                                                                                                                      (6, 'Special Beam Cannon', 'Canhão perfurante de energia', 'ULTIMATE', 18, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+                                                                                                                      (7, 'Masenko', 'Rajada de energia concentrada', 'ULTIMATE', 10, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+                                                                                                                      (8, 'Final Flash', 'Explosão final de energia', 'ULTIMATE', 30, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+                                                                                                                      (9, 'Flight', 'Capacidade de voar', 'PASSIVE', 5, 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+                                                                                                                      (10, 'Ki Sense', 'Sentir energia vital', 'PASSIVE', 5, 5, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT (id) DO NOTHING;
 
 -- ✅ Achievements com schema correto (key_name, title, requirement_json)

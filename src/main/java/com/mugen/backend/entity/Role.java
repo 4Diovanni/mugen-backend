@@ -12,7 +12,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Role extends BaseEntity implements Serializable {  // ✅ extends BaseEntity
+public class Role extends BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,8 +24,8 @@ public class Role extends BaseEntity implements Serializable {  // ✅ extends B
     @Column(name = "description")
     private String description;
 
+    // Enum para facilitar uso no código
     public enum RoleName {
         PLAYER, MASTER, MODERATOR
     }
 }
-

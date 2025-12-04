@@ -30,6 +30,10 @@ public class Skill extends BaseEntity {
     @Builder.Default
     private Integer baseTpCost = 10;
 
+    @Column(name = "required_level")
+    @Builder.Default
+    private Integer requiredLevel = 1;
+
     @Column(name = "max_level")
     @Builder.Default
     private Integer maxLevel = 10;

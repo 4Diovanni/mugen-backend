@@ -15,9 +15,10 @@ import java.util.UUID;
 @Builder
 public class CharacterAttribute extends BaseEntity {
 
-    // ✅ ESTE É O ID REAL - compartilhado com Character
+    // ✅ O ID é o mesmo do Character (compartilhado)
     @Id
-    private UUID id;
+    @Column(name = "character_id")
+    private UUID characterId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId  // ✅ Usa o ID do Character como ID do CharacterAttribute

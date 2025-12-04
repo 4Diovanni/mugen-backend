@@ -1,10 +1,8 @@
 package com.mugen.backend.controller;
 
-import com.mugen.backend.dto.AllocateAttributeRequest;
-import com.mugen.backend.dto.CharacterStats;
-import com.mugen.backend.dto.UpdateCharacterDTO;
-import com.mugen.backend.dto.UpdateCharacterNameDTO;
+import com.mugen.backend.dto.*;
 import com.mugen.backend.entity.Character;
+import com.mugen.backend.entity.CharacterSkill;
 import com.mugen.backend.entity.User;
 import com.mugen.backend.service.CharacterService;
 import com.mugen.backend.service.CharacterStatService;
@@ -23,6 +21,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Character Controller - API para gerenciar personagens
+ *
+ * Organização:
+ * 1. ✅ CRUD Básico (Create, Read, Update, Delete)
+ * 2. 🔧 Sub-recursos mais específicos (Skills, Stats, Atributos)
+ * 3. 📋 Listagem e Consultas (Genéricas)
+ */
 @RestController
 @RequestMapping("/characters")
 @RequiredArgsConstructor
@@ -33,17 +39,16 @@ public class CharacterController {
     private final CharacterStatService statService;
     private final TPService tpService;
 
+    // ==================== 1️⃣ CRUD BÁSICO ====================
+
     /**
      * POST /characters
      * Criar novo personagem
      */
     @PostMapping
-    public ResponseEntity<Character> createCharacter(
-            @RequestParam UUID ownerId,
-            @RequestParam String name,
-            @RequestParam Integer raceId) {
-        log.info("Request to create character: {} for owner: {}", name, ownerId);
-        Character created = characterService.createCharacter(ownerId, name, raceId);
+    public ResponseEntity<Character> createCharacter(@Valid @RequestBody CharacterDTO dto) {
+        log.info("Request to create character: {}", dto.getName());
+        Character created = characterService.createCharacter(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -60,77 +65,71 @@ public class CharacterController {
     }
 
     /**
-     * GET /characters
-     * Listar todos os personagens com paginação
+     * PUT /characters/{id}
+     * Atualizar personagem completo
      */
-    @GetMapping
-    public ResponseEntity<Page<Character>> getAllCharacters(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "name") String sortBy,
-            @RequestParam(defaultValue = "ASC") String sortDirection) {
-        log.info("Request to get all characters - page: {}, size: {}, sortBy: {}, direction: {}",
-                page, size, sortBy, sortDirection);
-
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-
-        Page<Character> characters = characterService.getAllCharacters(pageable);
-        return ResponseEntity.ok(characters);
+    @PutMapping("/{id}")
+    public ResponseEntity<Character> updateCharacter(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateCharacterDTO dto) {
+        log.info("Request to update character: {}", id);
+        Character updated = characterService.updateCharacter(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     /**
-     * GET /characters/owner/{ownerId}
-     * Listar personagens de um usuário
+     * DELETE /characters/{id}
+     * Deletar personagem (hard delete)
      */
-    @GetMapping("/owner/{ownerId}")
-    public ResponseEntity<List<Character>> getCharactersByOwnerId(@PathVariable UUID ownerId) {
-        log.info("Request to get characters by owner id: {}", ownerId);
-        List<Character> characters = characterService.getCharactersByOwnerId(ownerId);
-        return ResponseEntity.ok(characters);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCharacter(@PathVariable UUID id) {
+        log.info("Request to delete character: {}", id);
+        characterService.deleteCharacter(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ==================== 2️⃣ SUB-RECURSOS ESPECÍFICOS ====================
+
+    // --- Skills ---
+
+    /**
+     * POST /characters/{characterId}/skills/{skillId}
+     * Adicionar skill ao personagem
+     */
+    @PostMapping("/{characterId}/skills/{skillId}")
+    public ResponseEntity<CharacterSkill> addSkillToCharacter(
+            @PathVariable UUID characterId,
+            @PathVariable Integer skillId) {
+        log.info("Adding skill {} to character {}", skillId, characterId);
+        CharacterSkill characterSkill = characterService.addSkillToCharacter(characterId, skillId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(characterSkill);
     }
 
     /**
-     * GET /characters/owner/{ownerId}/paginated
-     * Listar personagens de um usuário com paginação
+     * GET /characters/{characterId}/skills
+     * Listar skills do personagem
      */
-    @GetMapping("/owner/{ownerId}/paginated")
-    public ResponseEntity<Page<Character>> getCharactersByOwnerIdPaginated(
-            @PathVariable UUID ownerId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "name") String sortBy,
-            @RequestParam(defaultValue = "ASC") String sortDirection) {
-        log.info("Request to get paginated characters by owner id: {}", ownerId);
-
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-
-        Page<Character> characters = characterService.getCharactersByOwnerIdPaginated(ownerId, pageable);
-        return ResponseEntity.ok(characters);
+    @GetMapping("/{characterId}/skills")
+    public ResponseEntity<List<CharacterSkill>> getCharacterSkills(@PathVariable UUID characterId) {
+        log.info("Getting skills for character {}", characterId);
+        List<CharacterSkill> skills = characterService.getCharacterSkills(characterId);
+        return ResponseEntity.ok(skills);
     }
 
     /**
-     * GET /characters/owner/{ownerId}/count
-     * Contar personagens de um usuário
+     * DELETE /characters/{characterId}/skills/{skillId}
+     * Remover skill do personagem
      */
-    @GetMapping("/owner/{ownerId}/count")
-    public ResponseEntity<Long> countCharactersByOwnerId(@PathVariable UUID ownerId) {
-        log.info("Request to count characters by owner id: {}", ownerId);
-        long count = characterService.countCharactersByOwnerId(ownerId);
-        return ResponseEntity.ok(count);
+    @DeleteMapping("/{characterId}/skills/{skillId}")
+    public ResponseEntity<Void> removeSkillFromCharacter(
+            @PathVariable UUID characterId,
+            @PathVariable Integer skillId) {
+        log.info("Removing skill {} from character {}", skillId, characterId);
+        characterService.removeSkillFromCharacter(characterId, skillId);
+        return ResponseEntity.noContent().build();
     }
 
-    /**
-     * GET /characters/{id}/exists
-     * Verificar se personagem existe
-     */
-    @GetMapping("/{id}/exists")
-    public ResponseEntity<Boolean> characterExists(@PathVariable UUID id) {
-        log.info("Request to check if character exists: {}", id);
-        boolean exists = characterService.characterExists(id);
-        return ResponseEntity.ok(exists);
-    }
+    // --- Stats e Atributos ---
 
     /**
      * GET /characters/{id}/stats
@@ -155,38 +154,13 @@ public class CharacterController {
             @RequestBody @Valid AllocateAttributeRequest request) {
         log.info("Allocating {} points to {} for character {}",
                 request.getPoints(), request.getAttributeName(), id);
-
         // TODO: Pegar user do contexto de segurança (quando implementar Spring Security)
-        // Por enquanto, criar user fake
         User mockUser = User.builder().id(UUID.randomUUID()).build();
-
         Character updated = tpService.allocateAttribute(id, request, mockUser);
         return ResponseEntity.ok(updated);
     }
 
-//    /**
-//     * DELETE /characters/{id}
-//     * Deletar personagem
-//     */
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> deleteCharacter(@PathVariable UUID id) {
-//        log.info("Deleting character: {}", id);
-//        characterService.deleteCharacter(id);
-//        return ResponseEntity.noContent().build();
-//    }
-
-    /**
-     * PUT /characters/{id}
-     * Atualizar personagem completo
-     */
-    @PutMapping("/{id}")
-    public ResponseEntity<Character> updateCharacter(
-            @PathVariable UUID id,
-            @Valid @RequestBody UpdateCharacterDTO dto) {
-        log.info("Request to update character: {}", id);
-        Character updated = characterService.updateCharacter(id, dto);
-        return ResponseEntity.ok(updated);
-    }
+    // --- Atualizações Parciais ---
 
     /**
      * PATCH /characters/{id}/name
@@ -202,17 +176,6 @@ public class CharacterController {
     }
 
     /**
-     * DELETE /characters/{id}
-     * Deletar personagem (hard delete)
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCharacter(@PathVariable UUID id) {
-        log.info("Request to delete character: {}", id);
-        characterService.deleteCharacter(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    /**
      * PATCH /characters/{id}/deactivate
      * Desativar personagem (soft delete)
      */
@@ -222,5 +185,76 @@ public class CharacterController {
         characterService.softDeleteCharacter(id);
         Character character = characterService.getCharacterById(id);
         return ResponseEntity.ok(character);
+    }
+
+    // ==================== 3️⃣ LISTAGEM E CONSULTAS ====================
+
+    /**
+     * GET /characters
+     * Listar todos os personagens com paginação
+     */
+    @GetMapping
+    public ResponseEntity<Page<Character>> getAllCharacters(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortDirection) {
+        log.info("Request to get all characters - page: {}, size: {}, sortBy: {}, direction: {}",
+                page, size, sortBy, sortDirection);
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Page<Character> characters = characterService.getAllCharacters(pageable);
+        return ResponseEntity.ok(characters);
+    }
+
+    /**
+     * GET /characters/owner/{ownerId}
+     * Listar personagens de um usuário (sem paginação)
+     */
+    @GetMapping("/owner/{ownerId}")
+    public ResponseEntity<List<Character>> getCharactersByOwnerId(@PathVariable UUID ownerId) {
+        log.info("Request to get characters by owner id: {}", ownerId);
+        List<Character> characters = characterService.getCharactersByOwner(ownerId);
+        return ResponseEntity.ok(characters);
+    }
+
+    /**
+     * GET /characters/owner/{ownerId}/paginated
+     * Listar personagens de um usuário com paginação
+     */
+    @GetMapping("/owner/{ownerId}/paginated")
+    public ResponseEntity<Page<Character>> getCharactersByOwnerIdPaginated(
+            @PathVariable UUID ownerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortDirection) {
+        log.info("Request to get paginated characters by owner id: {}", ownerId);
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Page<Character> characters = characterService.getCharactersByOwnerPaginated(ownerId, pageable);
+        return ResponseEntity.ok(characters);
+    }
+
+    /**
+     * GET /characters/owner/{ownerId}/count
+     * Contar personagens de um usuário
+     */
+    @GetMapping("/owner/{ownerId}/count")
+    public ResponseEntity<Long> countCharactersByOwnerId(@PathVariable UUID ownerId) {
+        log.info("Request to count characters by owner id: {}", ownerId);
+        long count = characterService.countByOwnerId(ownerId);
+        return ResponseEntity.ok(count);
+    }
+
+    /**
+     * GET /characters/{id}/exists
+     * Verificar se personagem existe
+     */
+    @GetMapping("/{id}/exists")
+    public ResponseEntity<Boolean> characterExists(@PathVariable UUID id) {
+        log.info("Request to check if character exists: {}", id);
+        boolean exists = characterService.characterExists(id);
+        return ResponseEntity.ok(exists);
     }
 }
