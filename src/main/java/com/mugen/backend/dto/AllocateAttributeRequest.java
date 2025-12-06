@@ -1,25 +1,30 @@
 package com.mugen.backend.dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO para alocar pontos em atributo
+ * POST /characters/{id}/allocate-attribute
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class AllocateAttributeRequest {
 
-    @NotBlank(message = "Attribute name is required")
-    private String attributeName; // "STR", "DEX", "CON", "WIL", "MND", "SPI"
+    @NotBlank(message = "Nome do atributo é obrigatório")
+    @Pattern(
+            regexp = "^(STR|DEX|CON|WIL|MND|SPI)$",
+            message = "Atributo inválido. Válidos: STR, DEX, CON, WIL, MND, SPI"
+    )
+    private String attributeName;
 
-    @NotNull(message = "Points to allocate is required")
-    @Min(value = 1, message = "Must allocate at least 1 point")
-    @Max(value = 20, message = "Cannot allocate more than 20 points at once")
+    @NotNull(message = "Pontos é obrigatório")
+    @Min(value = 1, message = "Mínimo 1 ponto")
+    @Max(value = 50, message = "Máximo 50 pontos por alocação")
     private Integer points;
 }

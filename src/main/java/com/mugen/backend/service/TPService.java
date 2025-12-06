@@ -7,6 +7,7 @@ import com.mugen.backend.entity.Character;
 import com.mugen.backend.entity.CharacterAttribute;
 import com.mugen.backend.entity.TPTransaction;
 import com.mugen.backend.entity.User;
+import com.mugen.backend.enums.TPTransactionType;
 import com.mugen.backend.exception.InsufficientTPException;
 import com.mugen.backend.exception.InvalidAttributeException;
 import com.mugen.backend.exception.MaxAttributeExceededException;
@@ -15,6 +16,7 @@ import com.mugen.backend.repository.TPTransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -36,7 +38,7 @@ public class TPService {
     // 81-120: 3 TP por ponto
 
     /**
-     * Aloca pontos em um atributo, gastando TP
+     * Aloca pontos num atributo, gastando TP
      */
     @Transactional
     public Character allocateAttribute(UUID characterId, AllocateAttributeRequest request, User user) {
@@ -82,6 +84,8 @@ public class TPService {
         TPTransaction transaction = TPTransaction.builder()
                 .character(character)
                 .amount(-cost)
+                .balanceAfter(character.getTp())  // ✅ Saldo APÓS debitar
+                .transactionType(TPTransactionType.ALLOCATION.toString())  // ✅ Tipo de transação
                 .reason(String.format("ATTRIBUTE_%s_+%d", attrName, request.getPoints()))
                 .createdBy(user.getId())
                 .build();
@@ -98,8 +102,9 @@ public class TPService {
 
     /**
      * Concede TP ao personagem (por minigame, mestre, evento)
+     * ✅ CORRIGIDO: Transação separada com REQUIRES_NEW e null handling
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Character awardTP(AwardTPRequest request, User awardedBy) {
         log.info("Awarding {} TP to character {} for reason: {}",
                 request.getAmount(), request.getCharacterId(), request.getReason());
@@ -110,12 +115,17 @@ public class TPService {
         // Adicionar TP
         character.setTp(character.getTp() + request.getAmount());
 
-        // Registrar transação
+        // ✅ Tratar null em awardedBy
+        UUID userId = awardedBy != null ? awardedBy.getId() : null;
+
+        // Registrar transação COM o novo saldo
         TPTransaction transaction = TPTransaction.builder()
                 .character(character)
                 .amount(request.getAmount())
+                .balanceAfter(character.getTp()) // ✅ Saldo APÓS ganhar
+                .transactionType(extractTransactionType(request.getReason())) // ✅ Tipo extraído da razão
                 .reason(request.getReason())
-                .createdBy(awardedBy.getId())
+                .createdBy(userId)  // ✅ Pode ser null (transação do sistema)
                 .build();
 
         tpTransactionRepository.save(transaction);
@@ -196,10 +206,16 @@ public class TPService {
 
     // ==================== MÉTODOS AUXILIARES ====================
 
+    /**
+     * Valida se o nome do atributo é válido
+     */
     private boolean isValidAttribute(String attributeName) {
         return List.of("STR", "DEX", "CON", "WIL", "MND", "SPI").contains(attributeName);
     }
 
+    /**
+     * Obtém valor atual do atributo
+     */
     private int getCurrentAttributeValue(CharacterAttribute attr, String attributeName) {
         return switch (attributeName) {
             case "STR" -> attr.getStr();
@@ -214,6 +230,9 @@ public class TPService {
         };
     }
 
+    /**
+     * Atualiza valor do atributo
+     */
     private void updateAttribute(CharacterAttribute attr, String attributeName, int newValue) {
         switch (attributeName) {
             case "STR" -> attr.setStr(newValue);
@@ -227,5 +246,18 @@ public class TPService {
             );
         }
     }
-}
 
+    /**
+     * Extrai tipo de transação a partir da razão
+     * Usado para categorizar transações de TP
+     */
+    private String extractTransactionType(String reason) {
+        if (reason.startsWith("MINIGAME")) return TPTransactionType.MINIGAME.toString();
+        if (reason.startsWith("MASTER")) return TPTransactionType.MASTER.toString();
+        if (reason.startsWith("EVENT")) return TPTransactionType.EVENT.toString();
+        if (reason.startsWith("ACHIEVEMENT")) return TPTransactionType.ACHIEVEMENT.toString();
+        if (reason.startsWith("SKILL")) return TPTransactionType.SKILL.toString();
+        if (reason.startsWith("TRANSFORMATION")) return TPTransactionType.TRANSFORMATION.toString();
+        return TPTransactionType.ALLOCATION.toString();
+    }
+}

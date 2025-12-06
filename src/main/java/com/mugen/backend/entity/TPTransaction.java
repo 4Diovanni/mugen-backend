@@ -26,7 +26,13 @@ public class TPTransaction extends BaseEntity {
     @Column(nullable = false)
     private Integer amount; // Positivo = ganhou, Negativo = gastou
 
-    @Column(length = 255)
+    @Column(nullable = false)
+    private Integer balanceAfter; // TP do personagem APÓS a transação
+
+    @Column(nullable = false, length = 50)
+    private String transactionType; // ALLOCATION, MINIGAME, MASTER, EVENT, ACHIEVEMENT, etc
+
+    @Column(length = 255, nullable = false)
     private String reason; // Ex: "MINIGAME_REFLEX", "SKILL_PURCHASE", "MASTER_ADJUSTMENT"
 
     @Column(name = "created_by")

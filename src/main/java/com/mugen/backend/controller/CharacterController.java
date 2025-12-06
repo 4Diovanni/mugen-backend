@@ -3,10 +3,7 @@ package com.mugen.backend.controller;
 import com.mugen.backend.dto.*;
 import com.mugen.backend.entity.*;
 import com.mugen.backend.entity.Character;
-import com.mugen.backend.service.CharacterService;
-import com.mugen.backend.service.CharacterStatService;
-import com.mugen.backend.service.TPService;
-import com.mugen.backend.service.TransformationService;
+import com.mugen.backend.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +14,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.mugen.backend.dto.AllocateAttributeRequest;
+import com.mugen.backend.dto.AwardTPRequest;
+import com.mugen.backend.dto.TPSummary;
+import com.mugen.backend.entity.TPTransaction;
+import com.mugen.backend.service.ExperienceService;
 
+import com.mugen.backend.dto.*;
+import com.mugen.backend.entity.*;
+import com.mugen.backend.service.*;
+
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,6 +48,7 @@ public class CharacterController {
     private final CharacterStatService statService;
     private final TPService tpService;
     private final TransformationService transformationService;
+    private final ExperienceService experienceService;
 
     // ==================== 1️⃣ CRUD BÁSICO ====================
 
@@ -213,21 +223,21 @@ public class CharacterController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * POST /characters/{id}/allocate-attribute
-     * Alocar pontos em atributo (gastar TP)
-     */
-    @PostMapping("/{id}/allocate-attribute")
-    public ResponseEntity<Character> allocateAttribute(
-            @PathVariable UUID id,
-            @RequestBody @Valid AllocateAttributeRequest request) {
-        log.info("Allocating {} points to {} for character {}",
-                request.getPoints(), request.getAttributeName(), id);
-        // TODO: Pegar user do contexto de segurança (quando implementar Spring Security)
-        User mockUser = User.builder().id(UUID.randomUUID()).build();
-        Character updated = tpService.allocateAttribute(id, request, mockUser);
-        return ResponseEntity.ok(updated);
-    }
+//    /**
+//     * POST /characters/{id}/allocate-attribute
+//     * Alocar pontos em atributo (gastar TP)
+//     */
+//    @PostMapping("/{id}/allocate-attribute")
+//    public ResponseEntity<Character> allocateAttribute(
+//            @PathVariable UUID id,
+//            @RequestBody @Valid AllocateAttributeRequest request) {
+//        log.info("Allocating {} points to {} for character {}",
+//                request.getPoints(), request.getAttributeName(), id);
+//        // TODO: Pegar user do contexto de segurança (quando implementar Spring Security)
+//        User mockUser = User.builder().id(UUID.randomUUID()).build();
+//        Character updated = tpService.allocateAttribute(id, request, mockUser);
+//        return ResponseEntity.ok(updated);
+//    }
 
     // --- Atualizações Parciais ---
 
@@ -327,5 +337,262 @@ public class CharacterController {
         return ResponseEntity.ok(exists);
     }
 
+    // ==================== 4️⃣ TP SYSTEM ====================
 
+    /**
+     * POST /characters/{id}/allocate-attribute
+     * Alocar pontos em um atributo (gastar TP)
+     *
+     * Validações:
+     * - Mínimo 1 ponto, máximo 50 por alocação
+     * - Máximo 120 por atributo
+     * - Custo progressivo: Tier 1 (1-50) = 1 TP/ponto, Tier 2 (51-80) = 2 TP/ponto, Tier 3 (81-120) = 3 TP/ponto
+     * - Deve ter TP suficiente
+     */
+    @PostMapping("/{id}/allocate-attribute")
+    public ResponseEntity<Character> allocateAttribute(
+            @PathVariable UUID id,
+            @Valid @RequestBody AllocateAttributeRequest request) {
+        log.info("Allocating {} points to {} for character {}",
+                request.getPoints(), request.getAttributeName(), id);
+
+        // TODO: Obter user do contexto de segurança (quando implementar Spring Security)
+        User mockUser = User.builder().id(UUID.randomUUID()).build();
+
+        Character updated = tpService.allocateAttribute(id, request, mockUser);
+        return ResponseEntity.ok(updated);
+    }
+
+    /**
+     * POST /characters/{id}/award-tp
+     * Conceder TP ao personagem (Minigame, Mestre, Evento, Achievement)
+     *
+     * ⚠️ ADMIN ONLY - Requer autenticação e permissão de administrador
+     *
+     * Casos de uso:
+     * - Minigame: "MINIGAME_DICE_ROLL"
+     * - Mestre: "MASTER_REWARD"
+     * - Evento: "EVENT_TOURNAMENT"
+     * - Achievement: "ACHIEVEMENT_FIRST_TRANSFORM"
+     */
+    @PostMapping("/{id}/award-tp")
+    public ResponseEntity<Character> awardTP(
+            @PathVariable UUID id,
+            @Valid @RequestBody AwardTPRequest request) {
+
+        log.info("Awarding {} TP to character {} - Reason: {}",
+                request.getAmount(), id, request.getReason());
+
+        // ✅ Buscar o character e usar o owner como awardedBy
+        Character character = characterService.getCharacterById(id);
+        User awardedBy = character.getOwner(); // Owner existe no banco!
+
+        if (!id.equals(request.getCharacterId())) {
+            throw new IllegalArgumentException("Character ID mismatch");
+        }
+
+        Character updated = tpService.awardTP(request, awardedBy);
+        return ResponseEntity.ok(updated);
+    }
+
+    /**
+     * GET /characters/{id}/tp-summary
+     * Obter resumo de TP do personagem
+     *
+     * Retorna:
+     * - TP atual
+     * - TP total ganhado na vida
+     * - TP total gasto na vida
+     * - Breakdown por categoria (minigames, master, eventos, atributos, skills, transformações)
+     * - Taxa de utilização
+     */
+    @GetMapping("/{id}/tp-summary")
+    public ResponseEntity<TPSummary> getTPSummary(@PathVariable UUID id) {
+        log.info("Getting TP summary for character {}", id);
+
+        TPSummary summary = tpService.getTPSummary(id);
+        return ResponseEntity.ok(summary);
+    }
+
+    /**
+     * GET /characters/{id}/tp-cost/{attributeName}/{points}
+     * Calcular custo de TP para alocar pontos
+     *
+     * Útil para frontend mostrar preview do custo antes de confirmar
+     *
+     * Exemplos:
+     * - GET /characters/uuid/tp-cost/STR/5 → Custo em TP
+     * - GET /characters/uuid/tp-cost/DEX/10 → Custo em TP
+     */
+    @GetMapping("/{id}/tp-cost/{attributeName}/{points}")
+    public ResponseEntity<Integer> calculateTPCost(
+            @PathVariable UUID id,
+            @PathVariable String attributeName,
+            @PathVariable Integer points) {
+        log.debug("Calculating TP cost for {} points in {} for character {}",
+                points, attributeName, id);
+
+        // Validar que o personagem existe
+        if (!characterService.characterExists(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Validar atributo
+        if (!attributeName.matches("^(STR|DEX|CON|WIL|MND|SPI)$")) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Validar pontos
+        if (points < 1 || points > 50) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Buscar valor atual do atributo
+        Character character = characterService.getCharacterById(id);
+        CharacterAttribute attr = character.getAttributes();
+
+        int currentValue = switch (attributeName.toUpperCase()) {
+            case "STR" -> attr.getStr();
+            case "DEX" -> attr.getDex();
+            case "CON" -> attr.getCon();
+            case "WIL" -> attr.getWil();
+            case "MND" -> attr.getMnd();
+            case "SPI" -> attr.getSpi();
+            default -> 0;
+        };
+
+        int cost = tpService.calculateAttributeCost(currentValue, points);
+        return ResponseEntity.ok(cost);
+    }
+
+    /**
+     * GET /characters/{id}/tp-history
+     * Obter histórico de transações de TP do personagem
+     *
+     * Mostra todas as transações (ganhos e gastos) ordenadas por data decrescente
+     */
+    @GetMapping("/{id}/tp-history")
+    public ResponseEntity<List<TPTransaction>> getTPHistory(@PathVariable UUID id) {
+        log.info("Getting TP history for character {}", id);
+
+        // Validar que o personagem existe
+        if (!characterService.characterExists(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<TPTransaction> history = tpService.getTransactionHistory(id);
+        return ResponseEntity.ok(history);
+    }
+
+
+    // ==================== 5️⃣ EXPERIÊNCIA E LEVELING ====================
+
+    /**
+     * POST /characters/{characterId}/gain-exp
+     * Ganhar experiência (calcula level up automático)
+     */
+    @PostMapping("/{characterId}/gain-exp")
+    public ResponseEntity<Character> gainExperience(
+            @PathVariable UUID characterId,
+            @Valid @RequestBody GainExpRequest request) {
+        log.info("Character {} gaining {} experience for reason: {}",
+                characterId, request.getAmount(), request.getReason());
+        Character updated = experienceService.gainExperience(characterId, request);
+        return ResponseEntity.ok(updated);
+    }
+
+    /**
+     * GET /characters/{characterId}/level-progress
+     * Obter progresso de XP para o próximo level
+     */
+    @GetMapping("/{characterId}/level-progress")
+    public ResponseEntity<ExperienceService.LevelProgress> getLevelProgress(@PathVariable UUID characterId) {
+        log.info("Getting level progress for character {}", characterId);
+        ExperienceService.LevelProgress progress = experienceService.getLevelProgress(characterId);
+        return ResponseEntity.ok(progress);
+    }
+
+    /**
+     * GET /characters/experience/exp-table
+     * Tabela de experiência (quantos XP por level)
+     */
+    @GetMapping("/experience/exp-table")
+    public ResponseEntity<List<ExperienceTable>> getExperienceTable(
+            @RequestParam(defaultValue = "1") int start,
+            @RequestParam(defaultValue = "20") int end) {
+
+        if (start < 1 || end > 100 || start > end) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        log.info("Getting experience table from level {} to {}", start, end);
+
+        List<ExperienceTable> table = new ArrayList<>();
+
+        for (int level = start; level <= end; level++) {
+            long expRequired = experienceService.getExpRequiredForLevel(level);
+            long totalExp = experienceService.getTotalExpForLevel(level);
+            table.add(new ExperienceTable((int)level, expRequired, totalExp));
+        }
+
+        return ResponseEntity.ok(table);
+    }
+
+    /**
+     * GET /characters/{characterId}/exp-info
+     * Informações completas de experiência do personagem
+     */
+    @GetMapping("/{characterId}/exp-info")
+    public ResponseEntity<ExperienceInfo> getExperienceInfo(@PathVariable UUID characterId) {
+        log.info("Getting experience info for character {}", characterId);
+
+        Character character = characterService.getCharacterById(characterId);
+        ExperienceService.LevelProgress progress = experienceService.getLevelProgress(characterId);
+
+        long totalExp = experienceService.getTotalExpForLevel(character.getLevel());
+        long nextLevelIn = progress.getExpForNextLevel() - progress.getCurrentExp();
+
+        return ResponseEntity.ok(new ExperienceInfo(
+                character.getLevel(),
+                character.getExp(),
+                progress.getExpForNextLevel(),
+                progress.getProgressPercentage(),
+                totalExp + character.getExp(),
+                progress.isMaxLevel(),
+                nextLevelIn
+        ));
+    }
+
+// ==================== ADMIN ENDPOINTS ====================
+
+    /**
+     * PATCH /characters/{characterId}/set-level/{level}
+     * [ADMIN] Definir level do personagem (reseta XP)
+     */
+    @PatchMapping("/{characterId}/set-level/{level}")
+    public ResponseEntity<Character> setCharacterLevel(
+            @PathVariable UUID characterId,
+            @PathVariable int level) {
+
+        log.warn("ADMIN ACTION: Setting character {} level to {}", characterId, level);
+        Character updated = experienceService.setLevel(characterId, level);
+        return ResponseEntity.ok(updated);
+    }
+
+    /**
+     * PATCH /characters/{characterId}/reset-experience
+     * [ADMIN] Resetar XP e Level para 1
+     */
+    @PatchMapping("/{characterId}/reset-experience")
+    public ResponseEntity<Character> resetExperience(@PathVariable UUID characterId) {
+        log.warn("ADMIN ACTION: Resetting experience for character {}", characterId);
+        Character updated = experienceService.resetExperience(characterId);
+        return ResponseEntity.ok(updated);
+    }
 }
+
+
+
+
+
+
