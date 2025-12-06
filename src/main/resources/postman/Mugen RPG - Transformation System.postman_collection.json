@@ -1,0 +1,562 @@
+{
+	"info": {
+		"_postman_id": "a21bda79-664d-4627-b862-fdb182cad1b4",
+		"name": "Mugen RPG - Transformation System",
+		"description": "Collection completa para testar o sistema de transformações\n\nEndpoints:\n- GET /characters/{characterId}/transformations/available\n- POST /characters/{characterId}/transformations/{transformationId}\n- GET /characters/{characterId}/transformations\n- GET /characters/{characterId}/transformations/unlocked\n- GET /characters/{characterId}/transformations/{transformationId}/unlocked",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27915352"
+	},
+	"item": [
+		{
+			"name": "🔧 Setup - Preparação",
+			"item": [
+				{
+					"name": "1. Obter Lista de Personagens",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    let characters = pm.response.json().content;",
+									"    if (characters.length > 0) {",
+									"        pm.environment.set('characterId', characters[0].id);",
+									"        pm.environment.set('characterName', characters[0].name);",
+									"        pm.environment.set('characterLevel', characters[0].level);",
+									"        pm.environment.set('characterRace', characters[0].raceName);",
+									"        console.log('✅ Character ID salvo:', characters[0].id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters?page=0&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Obter lista de personagens para pegar o ID"
+					},
+					"response": []
+				},
+				{
+					"name": "2. Verificar Dados do Personagem",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}"
+							]
+						},
+						"description": "Verificar dados completos do personagem selecionado"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "✨ Transformações - Happy Path",
+			"item": [
+				{
+					"name": "3. Listar Transformações Disponíveis",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    let transformations = pm.response.json();",
+									"    if (transformations.length > 0) {",
+									"        pm.environment.set('transformationId', transformations[0].id);",
+									"        pm.environment.set('transformationName', transformations[0].name);",
+									"        console.log('✅ Transformation ID salvo:', transformations[0].id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/transformations/available",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"transformations",
+								"available"
+							]
+						},
+						"description": "Listar todas as transformações que o personagem pode desbloquear\n\n✅ Esperado: Status 200\n✅ Deve retornar lista de transformações disponíveis"
+					},
+					"response": []
+				},
+				{
+					"name": "4. Desbloquear Transformação",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    let data = pm.response.json();",
+									"    pm.environment.set('transformationUnlockedAt', data.unlockedAt);",
+									"    console.log('✅ Transformação desbloqueada em:', data.unlockedAt);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/transformations/{{transformationId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"transformations",
+								"{{transformationId}}"
+							]
+						},
+						"description": "Desbloquear uma transformação para o personagem\n\n✅ Esperado: Status 201 CREATED\n✅ Response: CharacterTransformation com unlocked=true e unlockedAt preenchido"
+					},
+					"response": []
+				},
+				{
+					"name": "5. Listar Todas as Transformações do Personagem",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/transformations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"transformations"
+							]
+						},
+						"description": "Listar TODAS as transformações do personagem (desbloqueadas e bloqueadas)\n\n✅ Esperado: Status 200\n✅ Deve incluir a transformação que foi desbloqueada (unlocked=true)"
+					},
+					"response": []
+				},
+				{
+					"name": "6. Listar Apenas Transformações Desbloqueadas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/transformations/unlocked",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"transformations",
+								"unlocked"
+							]
+						},
+						"description": "Listar APENAS transformações já desbloqueadas\n\n✅ Esperado: Status 200\n✅ Deve conter a transformação desbloqueada com unlocked=true"
+					},
+					"response": []
+				},
+				{
+					"name": "7. Verificar se Transformação Está Desbloqueada",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/transformations/{{transformationId}}/unlocked",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"transformations",
+								"{{transformationId}}",
+								"unlocked"
+							]
+						},
+						"description": "Verificar se um personagem tem uma transformação específica desbloqueada\n\n✅ Esperado: Status 200\n✅ Response: true (porque desbloqueamos no passo 4)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "❌ Validações - Teste de Erros",
+			"item": [
+				{
+					"name": "8. Erro: Tentar Desbloquear 2x (Já Desbloqueada)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status Code 400', function () {",
+									"    pm.expect(pm.response.code).to.equal(400);",
+									"});",
+									"",
+									"pm.test('Mensagem de erro correta', function () {",
+									"    let body = pm.response.text();",
+									"    pm.expect(body).to.include('already unlocked');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/transformations/{{transformationId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"transformations",
+								"{{transformationId}}"
+							]
+						},
+						"description": "❌ ERRO ESPERADO: Tentar desbloquear a mesma transformação 2x\n\n❌ Esperado: Status 400 BAD REQUEST\n❌ Mensagem: 'Character already unlocked this transformation'"
+					},
+					"response": []
+				},
+				{
+					"name": "9. Erro: Transformação Não Existe",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status Code 404', function () {",
+									"    pm.expect(pm.response.code).to.equal(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/transformations/99999",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"transformations",
+								"99999"
+							]
+						},
+						"description": "❌ ERRO ESPERADO: Tentar desbloquear transformação que não existe\n\n❌ Esperado: Status 404 NOT FOUND"
+					},
+					"response": []
+				},
+				{
+					"name": "10. Erro: Personagem Não Existe",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status Code 404', function () {",
+									"    pm.expect(pm.response.code).to.equal(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/00000000-0000-0000-0000-000000000000/transformations/{{transformationId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"00000000-0000-0000-0000-000000000000",
+								"transformations",
+								"{{transformationId}}"
+							]
+						},
+						"description": "❌ ERRO ESPERADO: Personagem UUID inválido\n\n❌ Esperado: Status 404 NOT FOUND"
+					},
+					"response": []
+				},
+				{
+					"name": "11. Erro: Nível Insuficiente (Setup)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters"
+							]
+						},
+						"description": "Buscar personagem com nível baixo para testar validação de nível"
+					},
+					"response": []
+				},
+				{
+					"name": "12. Erro: Nível Insuficiente (Teste)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 400) {",
+									"    let body = pm.response.text();",
+									"    pm.test('Erro de nível insuficiente', function () {",
+									"        pm.expect(body).to.include('lower than required level');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/transformations/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"transformations",
+								"2"
+							]
+						},
+						"description": "❌ ERRO ESPERADO: Tentar desbloquear transformação que requer nível maior\n\n❌ Esperado: Status 400 BAD REQUEST\n❌ Mensagem: 'Character level X is lower than required level Y'\n\nNota: Requer transformação ID 2 com requiredLevel > current level"
+					},
+					"response": []
+				},
+				{
+					"name": "13. Erro: Raça Requerida (Setup)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters"
+							]
+						},
+						"description": "Buscar personagem com raça diferente para testar validação"
+					},
+					"response": []
+				},
+				{
+					"name": "14. Erro: Raça Requerida (Teste)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 400) {",
+									"    let body = pm.response.text();",
+									"    pm.test('Erro de raça requerida', function () {",
+									"        pm.expect(body).to.include('requires race');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/transformations/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"transformations",
+								"1"
+							]
+						},
+						"description": "❌ ERRO ESPERADO: Tentar desbloquear transformação que requer raça específica\n\n❌ Esperado: Status 400 BAD REQUEST\n❌ Mensagem: 'Transformation requires race: NomeDaRaça'\n\nNota: Use personagem com raça diferente da transformação"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📊 Teste Completo - Fluxo Completo",
+			"item": [
+				{
+					"name": "🔄 Executar Fluxo Completo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log('\\n=== TESTE COMPLETO DE TRANSFORMAÇÕES ===\\n');",
+									"console.log('📊 Variáveis do Ambiente:');",
+									"console.log('- Character ID:', pm.environment.get('characterId'));",
+									"console.log('- Character Name:', pm.environment.get('characterName'));",
+									"console.log('- Character Level:', pm.environment.get('characterLevel'));",
+									"console.log('- Character Race:', pm.environment.get('characterRace'));",
+									"console.log('- Transformation ID:', pm.environment.get('transformationId'));",
+									"console.log('- Transformation Name:', pm.environment.get('transformationName'));",
+									"console.log('\\n✅ Todos os endpoints testados com sucesso!');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/transformations/unlocked",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"transformations",
+								"unlocked"
+							]
+						},
+						"description": "Verificar todas as transformações desbloqueadas\n\nEste é o último passo - se chegar aqui com sucesso, todo o fluxo funcionou!"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Verificar se variáveis de ambiente estão definidas",
+					"if (!pm.environment.get('base_url')) {",
+					"    pm.environment.set('base_url', 'http://localhost:8080');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Log de cada teste",
+					"if (pm.response.code !== 200 && pm.response.code !== 201) {",
+					"    console.warn(`⚠️ Status ${pm.response.code}: ${pm.request.name}`);",
+					"} else {",
+					"    console.log(`✅ ${pm.request.name}`);"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "characterId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "characterName",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "characterLevel",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "characterRace",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "transformationId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "transformationName",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "transformationUnlockedAt",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

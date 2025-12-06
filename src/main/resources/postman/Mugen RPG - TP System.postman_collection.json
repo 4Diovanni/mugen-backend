@@ -1,0 +1,798 @@
+{
+	"info": {
+		"_postman_id": "ecb01e4c-14f6-474c-94d9-118bc5372a18",
+		"name": "Mugen RPG - TP System",
+		"description": "Collection completa para testar o sistema de Talent Points (TP)\n\nEndpoints:\n- GET /characters/{id}/tp-summary\n- GET /characters/{id}/tp-cost/{attributeName}/{points}\n- POST /characters/{id}/allocate-attribute\n- POST /characters/{id}/award-tp\n- GET /characters/{id}/tp-history",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27915352"
+	},
+	"item": [
+		{
+			"name": "🔧 Setup - Preparação",
+			"item": [
+				{
+					"name": "1. Obter Lista de Personagens",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    let characters = pm.response.json().content;",
+									"    if (characters.length > 0) {",
+									"        pm.environment.set('characterId', characters[0].id);",
+									"        pm.environment.set('characterName', characters[0].name);",
+									"        pm.environment.set('characterLevel', characters[0].level);",
+									"        pm.environment.set('initialTP', characters[0].tp);",
+									"        console.log('✅ Character ID:', characters[0].id);",
+									"        console.log('✅ Character TP Inicial:', characters[0].tp);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters?page=0&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Obter lista de personagens para selecionar um"
+					},
+					"response": []
+				},
+				{
+					"name": "2. Verificar Dados do Personagem",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}"
+							]
+						},
+						"description": "Verificar dados atuais do personagem selecionado"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📊 TP Summary - Verificar Saldo",
+			"item": [
+				{
+					"name": "3. Ver Resumo de TP (Inicial)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    let summary = pm.response.json();",
+									"    pm.environment.set('initialTPSummary', JSON.stringify(summary));",
+									"    console.log('✅ TP Atual:', summary.currentTP);",
+									"    console.log('✅ TP Total Ganhado:', summary.totalEarned);",
+									"    console.log('✅ TP Total Gasto:', summary.totalSpent);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/tp-summary",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"tp-summary"
+							]
+						},
+						"description": "Ver resumo de TP do personagem\n\n✅ Esperado: Status 200\n✅ Response:\n- currentTP: TP disponível\n- totalEarned: TP ganhado na vida\n- totalSpent: TP gasto na vida\n- breakdown por categoria"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "💰 Calcular Custo - Preview",
+			"item": [
+				{
+					"name": "4. Calcular Custo STR +5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    let cost = pm.response.json();",
+									"    pm.environment.set('strCost5', cost);",
+									"    console.log('✅ Custo para adicionar 5 STR:', cost, 'TP');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/tp-cost/STR/5",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"tp-cost",
+								"STR",
+								"5"
+							]
+						},
+						"description": "Calcular custo de TP para adicionar 5 pontos em STR\n\n✅ Esperado: Status 200\n✅ Response: Número inteiro com o custo em TP\n\nExemplo:\n- Se STR atual é 10: custo = 5 × 1 = 5 TP (Tier 1)\n- Se STR atual é 50: custo = 30×1 + 5×2 = 40 TP (Tier 1+2)"
+					},
+					"response": []
+				},
+				{
+					"name": "5. Calcular Custo DEX +10",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    let cost = pm.response.json();",
+									"    pm.environment.set('dexCost10', cost);",
+									"    console.log('✅ Custo para adicionar 10 DEX:', cost, 'TP');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/tp-cost/DEX/10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"tp-cost",
+								"DEX",
+								"10"
+							]
+						},
+						"description": "Calcular custo de TP para adicionar 10 pontos em DEX"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "✨ Alocar Atributos - Happy Path",
+			"item": [
+				{
+					"name": "6. Alocar +5 em STR",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    let character = pm.response.json();",
+									"    pm.environment.set('tpAfterStr', character.tp);",
+									"    console.log('✅ STR atualizado para:', character.attributes.str);",
+									"    console.log('✅ TP após gasto:', character.tp);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"attributeName\": \"STR\",\n  \"points\": 5\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/allocate-attribute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"allocate-attribute"
+							]
+						},
+						"description": "Alocar 5 pontos em STR (gastar TP)\n\n✅ Esperado: Status 200\n✅ Response: Character com atributos atualizados\n✅ STR aumentado\n✅ TP diminuído\n\nValidações:\n- Precisa ter TP suficiente\n- STR não pode ultrapassar 120\n- Pontos deve estar entre 1-50"
+					},
+					"response": []
+				},
+				{
+					"name": "7. Alocar +3 em DEX",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    let character = pm.response.json();",
+									"    pm.environment.set('tpAfterDex', character.tp);",
+									"    console.log('✅ DEX atualizado para:', character.attributes.dex);",
+									"    console.log('✅ TP após gasto:', character.tp);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"attributeName\": \"DEX\",\n  \"points\": 3\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/allocate-attribute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"allocate-attribute"
+							]
+						},
+						"description": "Alocar 3 pontos em DEX (gastar TP)"
+					},
+					"response": []
+				},
+				{
+					"name": "8. Alocar +2 em CON",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"attributeName\": \"CON\",\n  \"points\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/allocate-attribute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"allocate-attribute"
+							]
+						},
+						"description": "Alocar 2 pontos em CON (gastar TP)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "❌ Validações - Teste de Erros",
+			"item": [
+				{
+					"name": "9. Erro: TP Insuficiente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status Code 400', function () {",
+									"    pm.expect(pm.response.code).to.equal(400);",
+									"});",
+									"",
+									"pm.test('Mensagem de erro TP insuficiente', function () {",
+									"    let body = pm.response.text();",
+									"    pm.expect(body).to.include('TP');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"attributeName\": \"STR\",\n  \"points\": 50\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/allocate-attribute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"allocate-attribute"
+							]
+						},
+						"description": "❌ ERRO ESPERADO: Tentar alocar 50 pontos sem TP suficiente\n\n❌ Esperado: Status 400 BAD REQUEST\n❌ Mensagem: Erro sobre TP insuficiente"
+					},
+					"response": []
+				},
+				{
+					"name": "10. Erro: Atributo Inválido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status Code 400', function () {",
+									"    pm.expect(pm.response.code).to.equal(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"attributeName\": \"INVALID\",\n  \"points\": 5\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/allocate-attribute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"allocate-attribute"
+							]
+						},
+						"description": "❌ ERRO ESPERADO: Atributo inválido\n\n❌ Esperado: Status 400\n❌ Atributos válidos: STR, DEX, CON, WIL, MND, SPI"
+					},
+					"response": []
+				},
+				{
+					"name": "11. Erro: Pontos Fora do Intervalo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status Code 400', function () {",
+									"    pm.expect(pm.response.code).to.equal(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"attributeName\": \"STR\",\n  \"points\": 100\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/allocate-attribute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"allocate-attribute"
+							]
+						},
+						"description": "❌ ERRO ESPERADO: Pontos > 50 (máximo por alocação)\n\n❌ Esperado: Status 400\n❌ Máximo: 50 pontos por vez"
+					},
+					"response": []
+				},
+				{
+					"name": "12. Erro: Limite Máximo de Atributo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status Code 400', function () {",
+									"    pm.expect(pm.response.code).to.equal(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"attributeName\": \"STR\",\n  \"points\": 120\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/allocate-attribute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"allocate-attribute"
+							]
+						},
+						"description": "❌ ERRO ESPERADO: Atributo ultrapassaria limite de 120\n\n❌ Esperado: Status 400\n❌ Máximo por atributo: 120"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🎁 Conceder TP - Admin",
+			"item": [
+				{
+					"name": "13. Conceder 50 TP via Minigame",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    let character = pm.response.json();",
+									"    pm.environment.set('tpAfterAward', character.tp);",
+									"    console.log('✅ TP concedido! Nova quantidade:', character.tp);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"characterId\": \"{{characterId}}\",\n  \"amount\": 50,\n  \"reason\": \"MINIGAME_DICE_ROLL\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/award-tp",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"award-tp"
+							]
+						},
+						"description": "Conceder TP ao personagem (admin only)\n\n✅ Esperado: Status 200\n✅ Response: Character com TP aumentado\n\nRazões sugeridas:\n- MINIGAME_* (minigames)\n- MASTER_* (mestre)\n- EVENT_* (eventos)\n- ACHIEVEMENT_* (achievements)"
+					},
+					"response": []
+				},
+				{
+					"name": "14. Conceder 30 TP via Master",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"characterId\": \"{{characterId}}\",\n  \"amount\": 30,\n  \"reason\": \"MASTER_SESSION_REWARD\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/award-tp",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"award-tp"
+							]
+						},
+						"description": "Conceder 30 TP como recompensa do mestre"
+					},
+					"response": []
+				},
+				{
+					"name": "15. Conceder 20 TP via Achievement",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"characterId\": \"{{characterId}}\",\n  \"amount\": 20,\n  \"reason\": \"ACHIEVEMENT_FIRST_TRANSFORMATION\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/award-tp",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"award-tp"
+							]
+						},
+						"description": "Conceder 20 TP por achievement desbloqueado"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📜 Histórico - Ver Transações",
+			"item": [
+				{
+					"name": "16. Ver Histórico de Transações",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/tp-history",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"tp-history"
+							]
+						},
+						"description": "Ver histórico completo de transações de TP\n\n✅ Esperado: Status 200\n✅ Response: Lista de TPTransaction\n\nCada transação mostra:\n- amount: TP (+ ou -)\n- reason: motivo da transação\n- createdAt: data/hora\n- createdBy: user que criou"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "✅ Verificação Final",
+			"item": [
+				{
+					"name": "17. Ver Resumo Final de TP",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    let summary = pm.response.json();",
+									"    console.log('\\n=== RESUMO FINAL DE TP ===');",
+									"    console.log('📊 TP Atual:', summary.currentTP);",
+									"    console.log('📊 TP Total Ganhado:', summary.totalEarned);",
+									"    console.log('📊 TP Total Gasto:', summary.totalSpent);",
+									"    console.log('📊 Saldo Líquido:', summary.currentTP);",
+									"    console.log('');",
+									"    console.log('💰 Ganhos por Categoria:');",
+									"    console.log('  - Minigames:', summary.earnedFromMinigames);",
+									"    console.log('  - Mestre:', summary.earnedFromMaster);",
+									"    console.log('  - Eventos:', summary.earnedFromEvents);",
+									"    console.log('');",
+									"    console.log('💸 Gastos por Categoria:');",
+									"    console.log('  - Atributos:', summary.spentOnAttributes);",
+									"    console.log('  - Skills:', summary.spentOnSkills);",
+									"    console.log('  - Transformações:', summary.spentOnTransformations);",
+									"    console.log('\\n✅ Teste completo!');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}/tp-summary",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}",
+								"tp-summary"
+							]
+						},
+						"description": "Ver resumo final de TP após todos os testes\n\nDevem estar atualizados:\n- currentTP: TP disponível\n- totalEarned: total ganhado\n- totalSpent: total gasto\n- Breakdown por categoria"
+					},
+					"response": []
+				},
+				{
+					"name": "18. Verificar Personagem Final",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/characters/{{characterId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"characters",
+								"{{characterId}}"
+							]
+						},
+						"description": "Verificar estado final do personagem\n\nDevem estar alterados:\n- tp: quantidade disponível\n- attributes: STR/DEX/CON/etc aumentados"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Definir base_url se não existir",
+					"if (!pm.environment.get('base_url')) {",
+					"    pm.environment.set('base_url', 'http://localhost:8080');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Log automático",
+					"if (pm.response.code !== 200 && pm.response.code !== 201) {",
+					"    console.warn(`⚠️ Status ${pm.response.code}: ${pm.request.name}`);",
+					"} else {",
+					"    console.log(`✅ ${pm.request.name}`);",
+					"}",
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "characterId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "characterName",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "characterLevel",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "initialTP",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "initialTPSummary",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "strCost5",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "dexCost10",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "tpAfterStr",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "tpAfterDex",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "tpAfterAward",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
