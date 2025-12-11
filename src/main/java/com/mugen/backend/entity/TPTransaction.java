@@ -1,9 +1,9 @@
 package com.mugen.backend.entity;
 
+import com.mugen.backend.entity.character.Character;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity

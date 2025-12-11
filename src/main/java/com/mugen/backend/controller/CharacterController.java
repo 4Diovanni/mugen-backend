@@ -1,8 +1,17 @@
 package com.mugen.backend.controller;
 
-import com.mugen.backend.dto.*;
+import com.mugen.backend.dto.character.CharacterDTO;
+import com.mugen.backend.dto.character.CharacterStats;
+import com.mugen.backend.dto.character.UpdateCharacterDTO;
+import com.mugen.backend.dto.character.UpdateCharacterNameDTO;
+import com.mugen.backend.dto.tp.ExperienceInfo;
+import com.mugen.backend.dto.tp.ExperienceTable;
+import com.mugen.backend.dto.tp.GainExpRequest;
 import com.mugen.backend.entity.*;
-import com.mugen.backend.entity.Character;
+import com.mugen.backend.entity.character.Character;
+import com.mugen.backend.entity.character.CharacterAttribute;
+import com.mugen.backend.entity.character.CharacterSkill;
+import com.mugen.backend.entity.character.CharacterTransformation;
 import com.mugen.backend.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,17 +23,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.mugen.backend.dto.AllocateAttributeRequest;
-import com.mugen.backend.dto.AwardTPRequest;
-import com.mugen.backend.dto.TPSummary;
+import com.mugen.backend.dto.tp.AllocateAttributeRequest;
+import com.mugen.backend.dto.achievement.AwardTPRequest;
+import com.mugen.backend.dto.tp.TPSummary;
 import com.mugen.backend.entity.TPTransaction;
 import com.mugen.backend.service.ExperienceService;
-
-import com.mugen.backend.dto.*;
-import com.mugen.backend.entity.*;
-import com.mugen.backend.service.*;
-
-import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +35,6 @@ import java.util.UUID;
 
 /**
  * Character Controller - API para gerenciar personagens
- *
  * Organização:
  * 1. ✅ CRUD Básico (Create, Read, Update, Delete)
  * 2. 🔧 Sub-recursos mais específicos (Skills, Stats, Atributos)
@@ -100,7 +102,7 @@ public class CharacterController {
     }
 
     // ==================== 2️⃣ SUB-RECURSOS ESPECÍFICOS ====================
-// ==================== 3️⃣ TRANSFORMAÇÕES ====================
+    // ==================== 3️⃣ TRANSFORMAÇÕES ====================
 
 
     /**
@@ -342,7 +344,6 @@ public class CharacterController {
     /**
      * POST /characters/{id}/allocate-attribute
      * Alocar pontos em um atributo (gastar TP)
-     *
      * Validações:
      * - Mínimo 1 ponto, máximo 50 por alocação
      * - Máximo 120 por atributo
@@ -366,9 +367,7 @@ public class CharacterController {
     /**
      * POST /characters/{id}/award-tp
      * Conceder TP ao personagem (Minigame, Mestre, Evento, Achievement)
-     *
      * ⚠️ ADMIN ONLY - Requer autenticação e permissão de administrador
-     *
      * Casos de uso:
      * - Minigame: "MINIGAME_DICE_ROLL"
      * - Mestre: "MASTER_REWARD"
@@ -398,7 +397,6 @@ public class CharacterController {
     /**
      * GET /characters/{id}/tp-summary
      * Obter resumo de TP do personagem
-     *
      * Retorna:
      * - TP atual
      * - TP total ganhado na vida
@@ -417,9 +415,7 @@ public class CharacterController {
     /**
      * GET /characters/{id}/tp-cost/{attributeName}/{points}
      * Calcular custo de TP para alocar pontos
-     *
      * Útil para frontend mostrar preview do custo antes de confirmar
-     *
      * Exemplos:
      * - GET /characters/uuid/tp-cost/STR/5 → Custo em TP
      * - GET /characters/uuid/tp-cost/DEX/10 → Custo em TP
@@ -468,7 +464,6 @@ public class CharacterController {
     /**
      * GET /characters/{id}/tp-history
      * Obter histórico de transações de TP do personagem
-     *
      * Mostra todas as transações (ganhos e gastos) ordenadas por data decrescente
      */
     @GetMapping("/{id}/tp-history")
@@ -567,7 +562,7 @@ public class CharacterController {
 
     /**
      * PATCH /characters/{characterId}/set-level/{level}
-     * [ADMIN] Definir level do personagem (reseta XP)
+     * [ADMIN] Definir level do personagem (reset XP)
      */
     @PatchMapping("/{characterId}/set-level/{level}")
     public ResponseEntity<Character> setCharacterLevel(
@@ -581,7 +576,7 @@ public class CharacterController {
 
     /**
      * PATCH /characters/{characterId}/reset-experience
-     * [ADMIN] Resetar XP e Level para 1
+     * [ADMIN] Reset ar XP e Level para 1
      */
     @PatchMapping("/{characterId}/reset-experience")
     public ResponseEntity<Character> resetExperience(@PathVariable UUID characterId) {

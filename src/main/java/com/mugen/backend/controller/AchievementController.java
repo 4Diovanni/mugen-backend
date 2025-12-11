@@ -1,8 +1,8 @@
 package com.mugen.backend.controller;
 
-import com.mugen.backend.dto.CreateAchievementRequest;
+import com.mugen.backend.dto.achievement.CreateAchievementRequest;
 import com.mugen.backend.entity.Achievement;
-import com.mugen.backend.entity.CharacterAchievement;
+import com.mugen.backend.entity.character.CharacterAchievement;
 import com.mugen.backend.service.AchievementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

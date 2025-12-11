@@ -32,7 +32,7 @@ public class Achievement {
     private String title; // "Primeiro Personagem"
 
     @Column(columnDefinition = "TEXT")
-    private String description; // "Crie seu primeiro personagem"
+    private String description; // "Crie o seu primeiro personagem"
 
     @Column(name = "requirement_json", nullable = false, columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)  // ✅ Correto!
@@ -45,6 +45,7 @@ public class Achievement {
     private String category; // SPECIAL, COMBAT, EXPLORATION, SKILL, SOCIAL
 
     @Column(name = "is_active", nullable = false)
+    @Builder.Default
     private Boolean isActive = true;
 
     @CreationTimestamp

@@ -1,8 +1,9 @@
 package com.mugen.backend;
 
-import com.mugen.backend.dto.CharacterStats;
+import com.mugen.backend.dto.character.CharacterStats;
 import com.mugen.backend.entity.*;
-import com.mugen.backend.entity.Character;
+import com.mugen.backend.entity.character.Character;
+import com.mugen.backend.entity.character.CharacterAttribute;
 import com.mugen.backend.service.CharacterStatService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

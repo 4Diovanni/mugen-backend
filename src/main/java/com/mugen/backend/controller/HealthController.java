@@ -18,7 +18,7 @@ public class HealthController {
                 "status", "UP",
                 "service", "MUGEN RPG Backend",
                 "timestamp", LocalDateTime.now(),
-                "version", "2.1.4-SNAPSHOT"
+                "version", "3.0.0-SNAPSHOT"
         ));
     }
 

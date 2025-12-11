@@ -1,8 +1,8 @@
 package com.mugen.backend;
 
-import com.mugen.backend.dto.CharacterDTO;
-import com.mugen.backend.entity.Character;
-import com.mugen.backend.entity.CharacterAttribute;
+import com.mugen.backend.dto.character.CharacterDTO;
+import com.mugen.backend.entity.character.Character;
+import com.mugen.backend.entity.character.CharacterAttribute;
 import com.mugen.backend.entity.Race;
 import com.mugen.backend.entity.User;
 import com.mugen.backend.repository.CharacterRepository;

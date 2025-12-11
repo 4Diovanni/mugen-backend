@@ -1,7 +1,5 @@
 package com.mugen.backend;
 
-import com.mugen.backend.exception.InsufficientTPException;
-import com.mugen.backend.exception.InvalidAttributeException;
 import com.mugen.backend.exception.MaxAttributeExceededException;
 import com.mugen.backend.service.TPService;
 import org.junit.jupiter.api.Test;
@@ -10,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TPServiceTest {
 
-    private final TPService tpService = new TPService(null, null);
+    private final TPService tpService = new TPService(null, null, null);
 
     @Test
     void testCalculateAttributeCost_Tier1() {

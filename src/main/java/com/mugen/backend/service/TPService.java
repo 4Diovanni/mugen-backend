@@ -1,10 +1,10 @@
 package com.mugen.backend.service;
 
-import com.mugen.backend.dto.AllocateAttributeRequest;
-import com.mugen.backend.dto.AwardTPRequest;
-import com.mugen.backend.dto.TPSummary;
-import com.mugen.backend.entity.Character;
-import com.mugen.backend.entity.CharacterAttribute;
+import com.mugen.backend.dto.tp.AllocateAttributeRequest;
+import com.mugen.backend.dto.achievement.AwardTPRequest;
+import com.mugen.backend.dto.tp.TPSummary;
+import com.mugen.backend.entity.character.Character;
+import com.mugen.backend.entity.character.CharacterAttribute;
 import com.mugen.backend.entity.TPTransaction;
 import com.mugen.backend.entity.User;
 import com.mugen.backend.enums.TPTransactionType;
@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import com.mugen.backend.repository.UserRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +31,7 @@ public class TPService {
 
     private final TPTransactionRepository tpTransactionRepository;
     private final CharacterRepository characterRepository;
+    private final UserRepository userRepository;
 
     // Constantes de progressão
     private static final int MAX_ATTRIBUTE_VALUE = 120;
@@ -80,6 +82,16 @@ public class TPService {
         // Debitar TP
         character.setTp(character.getTp() - cost);
 
+        UUID createdById = null;
+        if (user != null && user.getId() != null) {
+            boolean userExists = userRepository.existsById(user.getId());
+            if (userExists) {
+                createdById = user.getId();
+            } else {
+                log.warn("User {} does not exist in app_user table. Setting createdBy to NULL", user.getId());
+            }
+        }
+
         // Registrar transação
         TPTransaction transaction = TPTransaction.builder()
                 .character(character)
@@ -87,7 +99,7 @@ public class TPService {
                 .balanceAfter(character.getTp())  // ✅ Saldo APÓS debitar
                 .transactionType(TPTransactionType.ALLOCATION.toString())  // ✅ Tipo de transação
                 .reason(String.format("ATTRIBUTE_%s_+%d", attrName, request.getPoints()))
-                .createdBy(user.getId())
+                .createdBy(createdById)
                 .build();
 
         tpTransactionRepository.save(transaction);
@@ -115,8 +127,25 @@ public class TPService {
         // Adicionar TP
         character.setTp(character.getTp() + request.getAmount());
 
-        // ✅ Tratar null em awardedBy
-        UUID userId = awardedBy != null ? awardedBy.getId() : null;
+//        // ✅ Tratar null em awardedBy
+//        UUID userId = awardedBy != null ? awardedBy.getId() : null;
+
+        UUID createdById = null;
+        if (awardedBy != null && awardedBy.getId() != null) {
+            boolean userExists = userRepository.existsById(awardedBy.getId());
+            if (userExists) {
+                createdById = awardedBy.getId();
+            } else {
+                // ✅ ALTERNATIVA: Tentar buscar por email
+                if (awardedBy.getEmail() != null) {
+                    var userByEmail = userRepository.findByEmail(awardedBy.getEmail());
+                    if (userByEmail.isPresent()) {
+                        createdById = userByEmail.get().getId();
+                        log.info("Found user by email: {}", createdById);
+                    }
+                }
+            }
+        }
 
         // Registrar transação COM o novo saldo
         TPTransaction transaction = TPTransaction.builder()
@@ -125,7 +154,7 @@ public class TPService {
                 .balanceAfter(character.getTp()) // ✅ Saldo APÓS ganhar
                 .transactionType(extractTransactionType(request.getReason())) // ✅ Tipo extraído da razão
                 .reason(request.getReason())
-                .createdBy(userId)  // ✅ Pode ser null (transação do sistema)
+                .createdBy(createdById)  // ✅ Pode ser null (transação do sistema)
                 .build();
 
         tpTransactionRepository.save(transaction);

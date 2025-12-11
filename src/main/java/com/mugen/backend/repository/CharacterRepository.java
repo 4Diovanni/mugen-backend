@@ -1,6 +1,6 @@
 package com.mugen.backend.repository;
 
-import com.mugen.backend.entity.Character;
+import com.mugen.backend.entity.character.Character;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

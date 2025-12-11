@@ -1,7 +1,7 @@
 package com.mugen.backend.controller;
 
-import com.mugen.backend.dto.CreateSkillDTO;
-import com.mugen.backend.dto.UpdateSkillDTO;
+import com.mugen.backend.dto.skill.CreateSkillDTO;
+import com.mugen.backend.dto.skill.UpdateSkillDTO;
 import com.mugen.backend.entity.Skill;
 import com.mugen.backend.service.SkillService;
 import jakarta.validation.Valid;

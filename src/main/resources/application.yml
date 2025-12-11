@@ -64,16 +64,16 @@ server:
 # JWT CONFIGURATION
 # ============================================
 jwt:
-  secret: 0Hv1CHhXJ8qQXnSOhLTSXJSZp7q/It+DgY/gw1VTcU3yr63qgwtq1zBGmU22peIr++5KwkKsAcdzpLnuQyp1oQ==
-  expiration: 86400000  # 24 horas em milissegundos
+
+  # 24 horas em milissegundos
 
 # ============================================
 # SUPABASE CONFIGURATION
 # ============================================
 supabase:
   url: https://wbfgmryihcycnltrrzkj.supabase.co
-  anon-key: 
-  service-role-key: 
+  anon-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZmdtcnlpaGN5Y25sdHJyemtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0NDk4NzEsImV4cCI6MjA4MDAyNTg3MX0.D-AH1XlS4SxBJmSTT_Dm78AOBODlP7ZyA4KUbYrY46o
+  service-role-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZmdtcnlpaGN5Y25sdHJyemtqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NDQ0OTg3MSwiZXhwIjoyMDgwMDI1ODcxfQ.3Zox0Yz4LOGrJ6flDwb7qniHA5a5Q3ZWVGIs0JHmQAg
   storage:
     bucket-avatars: avatars
 

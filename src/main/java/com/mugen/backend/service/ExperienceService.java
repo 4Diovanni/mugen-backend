@@ -1,7 +1,7 @@
 package com.mugen.backend.service;
 
-import com.mugen.backend.dto.GainExpRequest;
-import com.mugen.backend.entity.Character;
+import com.mugen.backend.dto.tp.GainExpRequest;
+import com.mugen.backend.entity.character.Character;
 import com.mugen.backend.repository.CharacterRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

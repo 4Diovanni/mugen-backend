@@ -1,18 +1,22 @@
 package com.mugen.backend.service;
 
-import com.mugen.backend.dto.CharacterDTO;
-import com.mugen.backend.dto.UpdateCharacterDTO;
+import com.mugen.backend.dto.character.CharacterDTO;
+import com.mugen.backend.dto.character.UpdateCharacterDTO;
 import com.mugen.backend.entity.*;
-import com.mugen.backend.entity.Character;
+import com.mugen.backend.entity.character.Character;
+import com.mugen.backend.entity.character.CharacterAttribute;
+import com.mugen.backend.entity.character.CharacterSkill;
 import com.mugen.backend.exception.CharacterNotFoundException;
 import com.mugen.backend.repository.*;
+import com.mugen.backend.repository.skills.CharacterSkillRepository;
+import com.mugen.backend.repository.skills.SkillRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.mugen.backend.entity.CharacterSkillId;
+import com.mugen.backend.entity.character.CharacterSkillId;
 
 
 

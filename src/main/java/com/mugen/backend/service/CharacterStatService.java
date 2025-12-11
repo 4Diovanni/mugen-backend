@@ -1,8 +1,8 @@
 package com.mugen.backend.service;
 
-import com.mugen.backend.dto.CharacterStats;
-import com.mugen.backend.entity.Character;
-import com.mugen.backend.entity.CharacterAttribute;
+import com.mugen.backend.dto.character.CharacterStats;
+import com.mugen.backend.entity.character.Character;
+import com.mugen.backend.entity.character.CharacterAttribute;
 import com.mugen.backend.entity.Race;
 import com.mugen.backend.entity.Transformation;
 import lombok.RequiredArgsConstructor;

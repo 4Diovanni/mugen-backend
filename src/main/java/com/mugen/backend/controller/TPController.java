@@ -1,8 +1,8 @@
 package com.mugen.backend.controller;
 
-import com.mugen.backend.dto.AwardTPRequest;
-import com.mugen.backend.dto.TPSummary;
-import com.mugen.backend.entity.Character;
+import com.mugen.backend.dto.achievement.AwardTPRequest;
+import com.mugen.backend.dto.tp.TPSummary;
+import com.mugen.backend.entity.character.Character;
 import com.mugen.backend.entity.TPTransaction;
 import com.mugen.backend.entity.User;
 import com.mugen.backend.service.TPService;

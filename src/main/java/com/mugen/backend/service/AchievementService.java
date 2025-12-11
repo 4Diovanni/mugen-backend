@@ -1,11 +1,12 @@
 package com.mugen.backend.service;
 
-import com.mugen.backend.dto.CreateAchievementRequest;
+import com.mugen.backend.dto.achievement.AwardTPRequest;
+import com.mugen.backend.dto.achievement.CreateAchievementRequest;
 import com.mugen.backend.entity.Achievement;
-import com.mugen.backend.entity.Character;
-import com.mugen.backend.entity.CharacterAchievement;
-import com.mugen.backend.repository.AchievementRepository;
-import com.mugen.backend.repository.CharacterAchievementRepository;
+import com.mugen.backend.entity.character.Character;
+import com.mugen.backend.entity.character.CharacterAchievement;
+import com.mugen.backend.repository.achievement.AchievementRepository;
+import com.mugen.backend.repository.achievement.CharacterAchievementRepository;
 import com.mugen.backend.repository.CharacterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -164,7 +165,7 @@ public class AchievementService {
         // Dar TP de recompensa se tiver
         if (achievement.getRewardTp() > 0) {
             try {
-                com.mugen.backend.dto.AwardTPRequest tpRequest = com.mugen.backend.dto.AwardTPRequest.builder()
+                AwardTPRequest tpRequest = AwardTPRequest.builder()
                         .characterId(characterId)
                         .amount(achievement.getRewardTp())
                         .reason("ACHIEVEMENT_" + achievement.getKeyName())

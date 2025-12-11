@@ -1,11 +1,11 @@
 package com.mugen.backend.service;
 
-import com.mugen.backend.dto.CreateSkillDTO;
-import com.mugen.backend.dto.UpdateSkillDTO;
+import com.mugen.backend.dto.skill.CreateSkillDTO;
+import com.mugen.backend.dto.skill.UpdateSkillDTO;
 import com.mugen.backend.entity.Skill;
 import com.mugen.backend.entity.Skill.SkillType;
 import com.mugen.backend.exception.SkillNotFoundException;
-import com.mugen.backend.repository.SkillRepository;
+import com.mugen.backend.repository.skills.SkillRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

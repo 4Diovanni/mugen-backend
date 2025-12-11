@@ -1,9 +1,13 @@
 package com.mugen.backend.service;
 
 import com.mugen.backend.entity.*;
-import com.mugen.backend.entity.Character;
+import com.mugen.backend.entity.character.Character;
+import com.mugen.backend.entity.character.CharacterTransformation;
+import com.mugen.backend.entity.character.CharacterTransformationId;
 import com.mugen.backend.exception.CharacterNotFoundException;
 import com.mugen.backend.repository.*;
+import com.mugen.backend.repository.transformation.CharacterTransformationRepository;
+import com.mugen.backend.repository.transformation.TransformationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
