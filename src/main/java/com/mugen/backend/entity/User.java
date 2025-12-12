@@ -94,4 +94,6 @@ public class User extends BaseEntity {
     public boolean hasRole(Role.RoleName roleName) {
         return hasRole(roleName.name());
     }
+
+
 }

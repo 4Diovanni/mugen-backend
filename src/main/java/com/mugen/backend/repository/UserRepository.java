@@ -16,6 +16,18 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     // Buscar por email
     Optional<User> findByEmail(String email);
 
+
+    /**
+     * Buscar todos os players do sistema
+     * Carrega com as roles para segurança (autorização)
+     * Usado em: AdminController - GET /admin/players
+     * @return Lista com todos os usuários (players)
+     */
+    @Query("SELECT DISTINCT u FROM User u " +
+            "LEFT JOIN FETCH u.roles " +
+            "ORDER BY u.createdAt DESC")
+    List<User> findAllPlayers();
+
     // Verificar se email existe
     boolean existsByEmail(String email);
 

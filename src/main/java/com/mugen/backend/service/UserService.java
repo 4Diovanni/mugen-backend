@@ -26,15 +26,47 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    /**
+     * Buscar todos os players do sistema
+     * Usado em: AdminController - GET /api/v1/admin/players
+     *
+     * @return Lista com todos os usuários (players)
+     */
+    @Transactional(readOnly = true)
+    public List<User> findAllPlayers() {
+        log.info("Fetching all players from database");
+        try {
+            List<User> users = userRepository.findAllPlayers();
+            log.info("Successfully fetched {} players", users.size());
+            return users;
+        } catch (Exception e) {
+            log.error("Error fetching all players", e);
+            throw e;
+        }
+    }
+
+    /**
+     * Buscar player por ID
+     * Usado em: AdminController - GET /api/v1/admin/players/{userId}
+     *
+     * @param userId ID do player
+     * @return User encapsulado em Optional
+     */
+    @Transactional(readOnly = true)
+    public Optional<User> findById(UUID userId) {
+        log.debug("Finding player by id: {}", userId);
+        return userRepository.findById(userId);
+    }
+
     public List<User> findAllActive() {
         log.debug("Finding all active users");
         return userRepository.findAllActiveUsers();
     }
 
-    public Optional<User> findById(UUID id) {
-        log.debug("Finding user by id: {}", id);
-        return userRepository.findById(id);
-    }
+//    public Optional<User> findById(UUID id) {
+//        log.debug("Finding user by id: {}", id);
+//        return userRepository.findById(id);
+//    }
 
     public Optional<User> findByEmail(String email) {
         log.debug("Finding user by email: {}", email);

@@ -1,26 +1,22 @@
 package com.mugen.backend.controller;
 
+import com.mugen.backend.dto.achievement.AwardTPRequest;
 import com.mugen.backend.dto.character.CharacterDTO;
 import com.mugen.backend.dto.character.CharacterStats;
 import com.mugen.backend.dto.character.UpdateCharacterDTO;
 import com.mugen.backend.dto.character.UpdateCharacterNameDTO;
-import com.mugen.backend.dto.tp.ExperienceInfo;
-import com.mugen.backend.dto.tp.ExperienceTable;
-import com.mugen.backend.dto.tp.GainExpRequest;
-
-import com.mugen.backend.entity.*;
+import com.mugen.backend.dto.tp.*;
+import com.mugen.backend.entity.TPTransaction;
+import com.mugen.backend.entity.Transformation;
+import com.mugen.backend.entity.User;
 import com.mugen.backend.entity.character.Character;
 import com.mugen.backend.entity.character.CharacterAttribute;
 import com.mugen.backend.entity.character.CharacterSkill;
 import com.mugen.backend.entity.character.CharacterTransformation;
-
 import com.mugen.backend.service.*;
-
 import jakarta.validation.Valid;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,12 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import com.mugen.backend.dto.tp.AllocateAttributeRequest;
-import com.mugen.backend.dto.achievement.AwardTPRequest;
-import com.mugen.backend.dto.tp.TPSummary;
-import com.mugen.backend.entity.TPTransaction;
-import com.mugen.backend.service.ExperienceService;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -46,6 +46,8 @@ public class CharacterService {
         return characterRepository.findAll();
     }
 
+
+
     public List<Character> findByOwnerId(UUID ownerId) {
         log.debug("Finding characters by owner id: {}", ownerId);
         return characterRepository.findByOwnerId(ownerId);
@@ -59,6 +61,48 @@ public class CharacterService {
     public Optional<Character> findById(UUID id) {
         log.debug("Finding character by id: {}", id);
         return characterRepository.findById(id);
+    }
+
+    /**
+     * Buscar personagens por userId (usando UUID)
+     * Equivalente ao: characterRepository.findByOwnerId()
+     *
+     * Usado em: AdminController - convertToPlayerSummary()
+     *
+     * @param userId ID do owner (UUID)
+     * @return Lista de personagens do usuário
+     */
+    @Transactional(readOnly = true)
+    public List<Character> findByUserId(UUID userId) {
+        log.debug("Finding characters by user id: {}", userId);
+        return characterRepository.findByOwnerId(userId);
+    }
+
+    /**
+     * Contar TOTAL de personagens no sistema (sem filtro por usuário)
+     * Usado em: AdminController - getAdminStats() para calcular estatísticas
+     *
+     * @return Total de personagens no jogo
+     */
+    @Transactional(readOnly = true)
+    public long countAll() {
+        log.info("Counting total characters in the system");
+        long total = characterRepository.count();
+        log.debug("Total characters: {}", total);
+        return total;
+    }
+
+    /**
+     * Sobrecarga: Contar personagens de um usuário específico
+     * Usado em: AdminController - convertToPlayerSummary()
+     *
+     * @param userId ID do owner (UUID)
+     * @return Quantidade de personagens do usuário
+     */
+    @Transactional(readOnly = true)
+    public long countByUserId(UUID userId) {
+        log.debug("Counting characters for user: {}", userId);
+        return characterRepository.countByOwnerId(userId);
     }
 
     public Optional<Character> findByIdWithRace(UUID id) {
