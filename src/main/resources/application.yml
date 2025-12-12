@@ -12,7 +12,7 @@ spring:
   datasource:
     url: jdbc:postgresql://db.wbfgmryihcycnltrrzkj.supabase.co:5432/postgres
     username: postgres
-    password: ${DB_PASSWORD}
+    password: ${DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
 
     # Connection Pool (HikariCP)
@@ -29,8 +29,8 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate  # validate = não altera schema (Flyway faz isso)
-    show-sql: true  # true = mostra SQL no console (útil para debug)
+      ddl-auto: validate
+    show-sql: ${JPA_SHOW_SQL:true}
     properties:
       hibernate:
         format_sql: true
@@ -47,35 +47,33 @@ spring:
     baseline-version: 0
     locations: classpath:db/migration
     validate-on-migrate: true
-    clean-disabled: true  # NUNCA limpe o banco em prod!
+    clean-disabled: true
 
 # ============================================
 # SERVER CONFIGURATION
 # ============================================
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   error:
     include-message: always
-    include-stacktrace: on_param  # ?trace=true para ver stacktrace
+    include-stacktrace: on_param
   servlet:
     context-path: /api
 
 # ============================================
-# JWT CONFIGURATION
+# JWT CONFIGURATION ⭐ IMPORTANTE
 # ============================================
 jwt:
-  spring.datasource.username=${DB_USERNAME}
-  spring.datasource.password=${DB_PASSWORD}
-  jwt.secret=${JWT_SECRET}
-  # 24 horas em milissegundos
+  secret: ${JWT_SECRET:}
+  expiration: ${JWT_EXPIRATION:86400000}  # 24 horas em ms
 
 # ============================================
-# SUPABASE CONFIGURATION
+# SUPABASE CONFIGURATION ⭐ IMPORTANTE
 # ============================================
 supabase:
-  url: https://wbfgmryihcycnltrrzkj.supabase.co
-  anon-key: ${ANON_KEY}
-  service-role-key: ${SERVICE_ROLE_KEY}
+  url: ${SUPABASE_URL:https://wbfgmryihcycnltrrzkj.supabase.co}
+  anon-key: ${ANON_KEY:}
+  service-role-key: ${SERVICE_ROLE_KEY:}
   storage:
     bucket-avatars: avatars
 
@@ -84,15 +82,14 @@ supabase:
 # ============================================
 logging:
   level:
-    root: INFO
-    com.mugen.backend: DEBUG
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.mugen.backend: ${LOG_LEVEL_MUGEN:DEBUG}
     org.springframework.web: DEBUG
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-
 
 # ============================================
 # PROFILES (dev, prod)
