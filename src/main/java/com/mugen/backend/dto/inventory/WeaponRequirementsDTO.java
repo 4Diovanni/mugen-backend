@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * DTO para WeaponRequirements
- * 
  * Requisitos necessários para equipar uma arma
  */
 @Data

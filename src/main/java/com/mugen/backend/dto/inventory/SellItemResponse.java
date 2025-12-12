@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * Response de venda de item
- * 
  * Retornado após vender um item com sucesso
  */
 @Data

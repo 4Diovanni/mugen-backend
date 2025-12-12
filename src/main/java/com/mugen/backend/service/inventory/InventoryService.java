@@ -1,25 +1,21 @@
 package com.mugen.backend.service.inventory;
 
-import com.mugen.backend.dto.inventory.ArmorDTO;
 import com.mugen.backend.dto.inventory.*;
-import com.mugen.backend.dto.inventory.WeaponDTO;
 import com.mugen.backend.entity.character.Character;
 import com.mugen.backend.entity.inventory.*;
-import com.mugen.backend.entity.inventory.Weapon;
-import com.mugen.backend.repository.inventory.*;
-import com.mugen.backend.repository.CharacterRepository;
-import com.mugen.backend.service.TPService;
-import com.mugen.backend.exception.ResourceNotFoundException;
-import com.mugen.backend.exception.InvalidOperationException;
 import com.mugen.backend.exception.InsufficientTPException;
-import com.mugen.backend.repository.inventory.MaterialRepository;
-
+import com.mugen.backend.exception.InvalidOperationException;
+import com.mugen.backend.exception.ResourceNotFoundException;
+import com.mugen.backend.repository.CharacterRepository;
+import com.mugen.backend.repository.inventory.*;
+import com.mugen.backend.service.TPService;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;

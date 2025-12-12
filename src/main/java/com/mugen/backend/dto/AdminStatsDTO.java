@@ -1,15 +1,14 @@
 package com.mugen.backend.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * DTO para estatísticas administrativas
- * Usado em: GET /api/v1/admin/players/stats/summary
- *
+ * Usado em: GET /admin/players/stats/summary
  * Campos:
  * - totalPlayers: Total de jogadores cadastrados
  * - activePlayers: Players com pelo menos 1 personagem

@@ -99,14 +99,14 @@ class RoleServiceTest {
     void shouldSaveRole() {
         // Given
         Role newRole = Role.builder()
-                .name("MODERATOR")
-                .description("Moderator role")
+                .name("ADMIN")
+                .description("ADMIN role")
                 .build();
 
         Role savedRole = Role.builder()
                 .id(3)
-                .name("MODERATOR")
-                .description("Moderator role")
+                .name("ADMIN")
+                .description("ADMIN role")
                 .build();
 
         when(roleRepository.save(any(Role.class))).thenReturn(savedRole);
@@ -116,7 +116,7 @@ class RoleServiceTest {
 
         // Then
         assertThat(result.getId()).isEqualTo(3);
-        assertThat(result.getName()).isEqualTo("MODERATOR");
+        assertThat(result.getName()).isEqualTo("ADMIN");
         verify(roleRepository, times(1)).save(newRole);
     }
 

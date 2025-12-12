@@ -21,7 +21,6 @@ import java.util.UUID;
 /**
  * Inventory & Equipment Controller
  * API para gerir inventário e equipamento dos personagens
-
  * Organização:
  * 1. 📦 INVENTÁRIO (Listar, Buscar, Info)
  * 2. ⚔️ ARMAS (Comprar, Vender, Listar)

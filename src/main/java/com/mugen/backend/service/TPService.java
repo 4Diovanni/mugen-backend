@@ -1,24 +1,24 @@
 package com.mugen.backend.service;
 
-import com.mugen.backend.dto.tp.AllocateAttributeRequest;
 import com.mugen.backend.dto.achievement.AwardTPRequest;
+import com.mugen.backend.dto.tp.AllocateAttributeRequest;
 import com.mugen.backend.dto.tp.TPSummary;
-import com.mugen.backend.entity.character.Character;
-import com.mugen.backend.entity.character.CharacterAttribute;
 import com.mugen.backend.entity.TPTransaction;
 import com.mugen.backend.entity.User;
+import com.mugen.backend.entity.character.Character;
+import com.mugen.backend.entity.character.CharacterAttribute;
 import com.mugen.backend.enums.TPTransactionType;
 import com.mugen.backend.exception.InsufficientTPException;
 import com.mugen.backend.exception.InvalidAttributeException;
 import com.mugen.backend.exception.MaxAttributeExceededException;
 import com.mugen.backend.repository.CharacterRepository;
 import com.mugen.backend.repository.TPTransactionRepository;
+import com.mugen.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import com.mugen.backend.repository.UserRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -96,8 +96,8 @@ public class TPService {
         TPTransaction transaction = TPTransaction.builder()
                 .character(character)
                 .amount(-cost)
-                .balanceAfter(character.getTp())  // ✅ Saldo APÓS debitar
-                .transactionType(TPTransactionType.ALLOCATION.toString())  // ✅ Tipo de transação
+                .balanceAfter(character.getTp())  // Saldo APÓS debitar
+                .transactionType(TPTransactionType.ALLOCATION.toString())  // Tipo de transação
                 .reason(String.format("ATTRIBUTE_%s_+%d", attrName, request.getPoints()))
                 .createdBy(createdById)
                 .build();
@@ -114,7 +114,7 @@ public class TPService {
 
     /**
      * Concede TP ao personagem (por minigame, mestre, evento)
-     * ✅ CORRIGIDO: Transação separada com REQUIRES_NEW e null handling
+     * Transação separada com REQUIRES_NEW e null handling
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Character awardTP(AwardTPRequest request, User awardedBy) {
@@ -127,8 +127,8 @@ public class TPService {
         // Adicionar TP
         character.setTp(character.getTp() + request.getAmount());
 
-//        // ✅ Tratar null em awardedBy
-//        UUID userId = awardedBy != null ? awardedBy.getId() : null;
+        // Tratar null em awardedBy
+        // UUID userId = awardedBy != null ? awardedBy.getId() : null;
 
         UUID createdById = null;
         if (awardedBy != null && awardedBy.getId() != null) {
@@ -136,7 +136,7 @@ public class TPService {
             if (userExists) {
                 createdById = awardedBy.getId();
             } else {
-                // ✅ ALTERNATIVA: Tentar buscar por email
+                // Tentar buscar por email
                 if (awardedBy.getEmail() != null) {
                     var userByEmail = userRepository.findByEmail(awardedBy.getEmail());
                     if (userByEmail.isPresent()) {
@@ -151,10 +151,10 @@ public class TPService {
         TPTransaction transaction = TPTransaction.builder()
                 .character(character)
                 .amount(request.getAmount())
-                .balanceAfter(character.getTp()) // ✅ Saldo APÓS ganhar
-                .transactionType(extractTransactionType(request.getReason())) // ✅ Tipo extraído da razão
+                .balanceAfter(character.getTp()) // Saldo APÓS ganhar
+                .transactionType(extractTransactionType(request.getReason())) // Tipo extraído da razão
                 .reason(request.getReason())
-                .createdBy(createdById)  // ✅ Pode ser null (transação do sistema)
+                .createdBy(createdById)  // Pode ser null (transação do sistema)
                 .build();
 
         tpTransactionRepository.save(transaction);

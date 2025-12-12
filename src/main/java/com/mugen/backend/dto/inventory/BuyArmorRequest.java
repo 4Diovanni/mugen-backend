@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * Request para comprar armadura
- * 
  * Usado pelo endpoint de compra de armadura
  */
 @Data

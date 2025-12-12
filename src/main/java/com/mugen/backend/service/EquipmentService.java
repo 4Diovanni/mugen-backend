@@ -1,19 +1,25 @@
 package com.mugen.backend.service;
 
+import com.mugen.backend.dto.equipment.EquipItemRequest;
+import com.mugen.backend.dto.equipment.EquipmentBonusesDTO;
+import com.mugen.backend.dto.equipment.EquipmentStatsDTO;
+import com.mugen.backend.dto.inventory.ArmorDTO;
+import com.mugen.backend.dto.inventory.WeaponDTO;
+import com.mugen.backend.entity.character.Character;
 import com.mugen.backend.entity.character.CharacterEquipment;
+import com.mugen.backend.entity.inventory.Armor;
+import com.mugen.backend.entity.inventory.InventoryArmor;
+import com.mugen.backend.entity.inventory.InventoryWeapon;
+import com.mugen.backend.entity.inventory.Weapon;
+import com.mugen.backend.enums.EquipmentStatus;
+import com.mugen.backend.exception.InvalidOperationException;
+import com.mugen.backend.exception.ResourceNotFoundException;
 import com.mugen.backend.repository.CharacterEquipmentRepository;
+import com.mugen.backend.repository.CharacterRepository;
 import com.mugen.backend.repository.inventory.InventoryArmorRepository;
 import com.mugen.backend.repository.inventory.InventoryWeaponRepository;
-import com.mugen.backend.dto.equipment.*;
-import com.mugen.backend.dto.inventory.WeaponDTO;
-import com.mugen.backend.dto.inventory.ArmorDTO;
-import com.mugen.backend.entity.character.Character;
-import com.mugen.backend.entity.inventory.*;
-import com.mugen.backend.enums.EquipmentStatus;
-import com.mugen.backend.repository.CharacterRepository;
-import com.mugen.backend.exception.ResourceNotFoundException;
-import com.mugen.backend.exception.InvalidOperationException;
-import com.mugen.backend.service.inventory.*;
+import com.mugen.backend.service.inventory.ArmorService;
+import com.mugen.backend.service.inventory.WeaponService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,7 +45,7 @@ public class EquipmentService {
     // ==================== GET EQUIPMENT ====================
 
     /**
-     * ✅ NOVO: Obter equipamento do personagem
+     * Obter equipamento do personagem
      */
     public CharacterEquipment getCharacterEquipment(UUID characterId) {
         log.debug("Buscando equipamento do personagem: {}", characterId);
@@ -48,7 +54,7 @@ public class EquipmentService {
     }
 
     /**
-     * ✅ MÉTODO AUXILIAR: Calcular o status correto baseado no que está equipado
+     * Calcular o status correto baseado no que está equipado
      */
     private EquipmentStatus calculateStatus(Weapon weapon, Armor armor) {
         boolean hasWeapon = weapon != null;
@@ -66,7 +72,7 @@ public class EquipmentService {
     }
 
     /**
-     * ✅ EXISTENTE: Obter stats de equipamento (CORRIGIDO)
+     * Obter stats de equipamento
      */
     public EquipmentStatsDTO getEquipmentStats(UUID characterId) {
         log.debug("🔍 Buscando stats de equipamento do personagem: {}", characterId);
@@ -93,7 +99,7 @@ public class EquipmentService {
             armorDTO = armorService.convertToDTO(equipment.getArmor());
         }
 
-        // ✅ NOVO: Calcular atributos finais (base + bônus)
+        // Calcular atributos finais (base + bônus)
         int finalStr = character.getAttributes().getStr() + equipment.getTotalStrBonus();
         int finalDex = character.getAttributes().getDex() + equipment.getTotalDexBonus();
         int finalCon = character.getAttributes().getCon() + equipment.getTotalConBonus();
@@ -124,7 +130,7 @@ public class EquipmentService {
                 .totalWilBonus(equipment.getTotalWilBonus())
                 .totalMndBonus(equipment.getTotalMndBonus())
                 .totalSpiBonus(equipment.getTotalSpiBonus())
-                // ✅ NOVO: Atributos finais (base + bônus)
+                // Atributos finais (base + bônus)
                 .finalStr(finalStr)
                 .finalDex(finalDex)
                 .finalCon(finalCon)
@@ -142,7 +148,7 @@ public class EquipmentService {
     // ==================== EQUIPMENT BONUSES ====================
 
     /**
-     * ✅ NOVO: Calcular bônus totais do equipamento
+     * Calcular bônus totais do equipamento
      */
     public EquipmentBonusesDTO calculateEquipmentBonuses(WeaponDTO weapon, ArmorDTO armor) {
         log.debug("Calculando bônus totais de equipamento");
@@ -180,7 +186,7 @@ public class EquipmentService {
     }
 
     /**
-     * ✅ NOVO: Obter apenas os bônus de equipamento
+     * Obter apenas os bônus de equipamento
      */
     public EquipmentBonusesDTO getEquipmentBonuses(UUID characterId) {
         log.debug("Obtendo bônus de equipamento do personagem: {}", characterId);
@@ -204,7 +210,7 @@ public class EquipmentService {
     // ==================== EQUIP ITEMS ====================
 
     /**
-     * ✅ NOVO: Equipar item (genérico)
+     * Equipar item (genérico)
      */
     @Transactional
     public EquipmentStatsDTO equipItem(UUID characterId, EquipItemRequest request) {
@@ -220,7 +226,7 @@ public class EquipmentService {
     }
 
     /**
-     * ✅ EXISTENTE: Equipar arma (CORRIGIDO)
+     * ✅ EXISTENTE: Equipar arma
      */
     @Transactional
     public EquipmentStatsDTO equipWeapon(UUID characterId, EquipItemRequest request) {
@@ -263,7 +269,7 @@ public class EquipmentService {
         equipment.setWeapon(inventoryWeapon.getWeapon());
         equipment.setEquippedAt(LocalDateTime.now());
 
-        // ✅ NOVO: Calcular status correto (pode ser EQUIPADO_ARMA ou EQUIPADO_AA)
+        // Calcular status correto (pode ser EQUIPADO_ARMA ou EQUIPADO_AA)
         EquipmentStatus newStatus = calculateStatus(equipment.getWeapon(), equipment.getArmor());
         equipment.setStatus(newStatus);
 
@@ -274,7 +280,7 @@ public class EquipmentService {
     }
 
     /**
-     * ✅ NOVO: Equipar armadura (CORRIGIDO)
+     * Equipar armadura
      */
     @Transactional
     public EquipmentStatsDTO equipArmor(UUID characterId, EquipItemRequest request) {
@@ -312,7 +318,7 @@ public class EquipmentService {
         equipment.setArmor(inventoryArmor.getArmor());
         equipment.setEquippedAt(LocalDateTime.now());
 
-        // ✅ NOVO: Calcular status correto (pode ser EQUIPADO_ARMADURA ou EQUIPADO_AA)
+        // Calcular status correto (pode ser EQUIPADO_ARMADURA ou EQUIPADO_AA)
         EquipmentStatus newStatus = calculateStatus(equipment.getWeapon(), equipment.getArmor());
         equipment.setStatus(newStatus);
 
@@ -325,7 +331,7 @@ public class EquipmentService {
     // ==================== UNEQUIP ITEMS ====================
 
     /**
-     * ✅ NOVO: Desequipar arma (CORRIGIDO)
+     * Desequipar arma
      */
     public EquipmentStatsDTO unequipWeapon(UUID characterId) {
         log.info("🗑️ Desequipando arma do personagem: {}", characterId);
@@ -340,7 +346,7 @@ public class EquipmentService {
         equipment.setWeapon(null);
         equipment.setEquippedAt(null);
 
-        // ✅ NOVO: Calcular status correto (pode virar EQUIPADO_ARMADURA ou NAO_EQUIPADO)
+        // Calcular status correto (pode virar EQUIPADO_ARMADURA ou NAO_EQUIPADO)
         EquipmentStatus newStatus = calculateStatus(equipment.getWeapon(), equipment.getArmor());
         equipment.setStatus(newStatus);
 
@@ -351,7 +357,7 @@ public class EquipmentService {
     }
 
     /**
-     * ✅ NOVO: Desequipar armadura (CORRIGIDO)
+     * Desequipar armadura
      */
     public EquipmentStatsDTO unequipArmor(UUID characterId) {
         log.info("🗑️ Desequipando armadura do personagem: {}", characterId);
@@ -362,11 +368,11 @@ public class EquipmentService {
             throw new InvalidOperationException("Personagem não possui armadura equipada");
         }
 
-        // ✅ CORRIGIDO: Remover armadura e RECALCULAR status
+        // Remover armadura e RECALCULAR status
         equipment.setArmor(null);
         equipment.setEquippedAt(null);
 
-        // ✅ NOVO: Calcular status correto (pode virar EQUIPADO_ARMA ou NAO_EQUIPADO)
+        // Calcular status correto (pode virar EQUIPADO_ARMA ou NAO_EQUIPADO)
         EquipmentStatus newStatus = calculateStatus(equipment.getWeapon(), equipment.getArmor());
         equipment.setStatus(newStatus);
 
@@ -377,7 +383,7 @@ public class EquipmentService {
     }
 
     /**
-     * ✅ NOVO: Desequipar item (genérico)
+     * Desequipar item (genérico)
      */
     public EquipmentStatsDTO unequipItem(UUID characterId, String itemType) {
         log.info("🗑️ Desequipando item {} do personagem: {}", itemType, characterId);
@@ -394,7 +400,7 @@ public class EquipmentService {
     // ==================== CALCULATE STATS ====================
 
     /**
-     * ✅ NOVO: Calcular stats finais do personagem com equipamento
+     * Calcular stats finais do personagem com equipamento
      */
     public EquipmentStatsDTO calculateEquipmentStats(UUID characterId) {
         log.debug("Calculando stats de equipamento do personagem: {}", characterId);

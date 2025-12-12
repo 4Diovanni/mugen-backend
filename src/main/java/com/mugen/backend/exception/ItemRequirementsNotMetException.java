@@ -13,7 +13,4 @@ public class ItemRequirementsNotMetException extends RuntimeException {
         super(String.format("%s: %s insuficiente. Necessário: %d, Seu: %d", itemName, requirement, required, current));
     }
 
-//    public ItemRequirementsNotMetException(String message) {
-//        super(message);
-//    }
 }

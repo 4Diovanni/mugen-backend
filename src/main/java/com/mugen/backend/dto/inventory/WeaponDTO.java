@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * DTO para Weapon (Arma)
- * 
  * Usado para transferir dados de arma entre camadas
  */
 @Data

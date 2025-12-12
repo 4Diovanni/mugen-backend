@@ -4,7 +4,6 @@ import lombok.Getter;
 
 /**
  * Tipo primário da arma - Define a função principal
- * 
  * ATAQUE: Focado em causar dano
  * DEFESA: Focado em proteção
  * UTILIDADE: Funções especiais e suporte

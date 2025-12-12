@@ -50,9 +50,9 @@ public class JwtTokenProvider {
         try {
             SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
             Jwts.parser()
-                    .verifyWith(key)  // ✅ NOVO: verifyWith() substitui setSigningKey()
+                    .verifyWith(key)
                     .build()
-                    .parseSignedClaims(token);  // ✅ NOVO: parseSignedClaims() substitui parseClaimsJws()
+                    .parseSignedClaims(token);
             return true;
         } catch (SignatureException e) {
             log.error("JWT signature validation failed: {}", e.getMessage());
@@ -78,10 +78,10 @@ public class JwtTokenProvider {
     public String extractUserId(String token) {
         SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         return Jwts.parser()
-                .verifyWith(key)  // ✅ NOVO
+                .verifyWith(key)
                 .build()
-                .parseSignedClaims(token)  // ✅ NOVO
-                .getPayload()  // ✅ NOVO: getPayload() substitui getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject();
     }
 
@@ -92,10 +92,10 @@ public class JwtTokenProvider {
     public Set<String> extractRoles(String token) {
         SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         Claims claims = Jwts.parser()
-                .verifyWith(key)  // ✅ NOVO
+                .verifyWith(key)
                 .build()
-                .parseSignedClaims(token)  // ✅ NOVO
-                .getPayload();  // ✅ NOVO: getPayload() substitui getBody()
+                .parseSignedClaims(token)
+                .getPayload();
 
         List<String> roleList = (List<String>) claims.get("roles");
         return roleList != null ? new HashSet<>(roleList) : new HashSet<>();

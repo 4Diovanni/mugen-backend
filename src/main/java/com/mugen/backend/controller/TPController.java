@@ -32,7 +32,7 @@ public class TPController {
         log.info("Awarding {} TP to character {} for {}",
                 request.getAmount(), request.getCharacterId(), request.getReason());
 
-        // TODO: Pegar user do contexto de segurança
+        // Pegar ‘user’ do contexto de segurança
         User mockUser = User.builder().id(UUID.randomUUID()).build();
 
         Character updated = tpService.awardTP(request, mockUser);

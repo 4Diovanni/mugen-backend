@@ -1,9 +1,8 @@
 package com.mugen.backend.entity.inventory;
-import com.mugen.backend.enums.ArmorRarity;
-import jakarta.persistence.*;
 
+import com.mugen.backend.enums.ArmorRarity;
 import com.mugen.backend.enums.ArmorType;
-import com.mugen.backend.enums.WeaponRarity;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +13,6 @@ import java.time.LocalDateTime;
 
 /**
  * Entidade Armor (Armadura)
- * 
  * Representa uma armadura no sistema de inventário
  * Focada em proteção e defesa do personagem
  */

@@ -1,14 +1,10 @@
 package com.mugen.backend.service.inventory;
 
 
-import com.mugen.backend.dto.inventory.ArmorDTO;
 import com.mugen.backend.dto.inventory.MaterialDTO;
-
 import com.mugen.backend.entity.inventory.Material;
-import com.mugen.backend.enums.ArmorRarity;
-import com.mugen.backend.enums.ArmorType;
-import com.mugen.backend.repository.inventory.MaterialRepository;
 import com.mugen.backend.exception.ResourceNotFoundException;
+import com.mugen.backend.repository.inventory.MaterialRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -37,17 +33,6 @@ public class MaterialService {
                 ));
         return convertToDTO(material);
     }
-
-//    /**
-//     * Listar todos os materiais
-//     */
-//    public List<MaterialDTO> getAllMaterials() {
-//        log.debug("Listando todos os materiais");
-//        return materialRepository.findAll()
-//                .stream()
-//                .map(this::convertToDTO)
-//                .toList();
-//    }
 
     /**
      * Listar todas as materiais ativos

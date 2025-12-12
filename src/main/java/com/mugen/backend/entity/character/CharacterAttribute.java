@@ -16,13 +16,13 @@ import java.util.UUID;
 @Builder
 public class CharacterAttribute extends BaseEntity {
 
-    // ✅ O ID é o mesmo do Character (compartilhado)
+    // O ID é o mesmo do Character (compartilhado)
     @Id
     @Column(name = "character_id")
     private UUID characterId;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @MapsId  // ✅ Usa o ID do Character como ID do CharacterAttribute
+    @MapsId  // Usa o ID do Character como ID do CharacterAttribute
     @JoinColumn(name = "character_id")
     @JsonIgnoreProperties({"attributes"})
     private Character character;

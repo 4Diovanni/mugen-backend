@@ -29,7 +29,7 @@ public class User extends BaseEntity {
     private String displayName;
 
     @Column(name = "password_hash", nullable = false)
-    @JsonIgnore  // ✅ NUNCA expor no JSON
+    @JsonIgnore  // Ignorar senha para privacidade
     private String passwordHash;
 
     @Column(name = "avatar_url")
@@ -48,7 +48,7 @@ public class User extends BaseEntity {
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
-    // ✅ Campo transiente (não vai no banco, só para receber senha no request)
+    // Campo transiente (não vai no banco, só para receber senha no request)
     @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
@@ -69,7 +69,7 @@ public class User extends BaseEntity {
     public void setPassword(String password) {
         this.passwordHash = password;
     }
-    // ✅ Métodos para gerenciar roles
+    // Métodos para gerenciar roles
     public void addRole(Role role) {
         if (this.roles == null) {
             this.roles = new HashSet<>();

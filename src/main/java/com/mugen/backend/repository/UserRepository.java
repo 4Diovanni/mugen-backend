@@ -16,7 +16,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     // Buscar por email
     Optional<User> findByEmail(String email);
 
-
     /**
      * Buscar todos os players do sistema
      * Carrega com as roles para segurança (autorização)

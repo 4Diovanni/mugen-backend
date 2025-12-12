@@ -12,7 +12,6 @@ import java.util.UUID;
 
 /**
  * DTO para Inventory (Inventário completo)
- * 
  * Retorna informações completas do inventário do personagem
  */
 @Data

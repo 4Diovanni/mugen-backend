@@ -1,12 +1,12 @@
 package com.mugen.backend.service.inventory;
 
 import com.mugen.backend.dto.inventory.ArmorDTO;
+import com.mugen.backend.entity.inventory.Armor;
 import com.mugen.backend.enums.ArmorRarity;
 import com.mugen.backend.enums.ArmorType;
-import com.mugen.backend.entity.inventory.Armor;
 import com.mugen.backend.exception.InvalidOperationException;
-import com.mugen.backend.repository.inventory.ArmorRepository;
 import com.mugen.backend.exception.ResourceNotFoundException;
+import com.mugen.backend.repository.inventory.ArmorRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,7 +19,6 @@ import java.util.Objects;
 
 /**
  * Service para gerenciar Armaduras
- * 
  * Responsável por:
  * - Buscar e filtrar armaduras
  * - Validar requisitos de armaduras

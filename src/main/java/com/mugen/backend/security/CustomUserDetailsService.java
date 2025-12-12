@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 🔐 CustomUserDetailsService
+ * CustomUserDetailsService
  * Implementação do UserDetailsService do Spring Security
  * Responsável por carregar os dados do usuário do banco de dados
  */
@@ -27,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     /**
      * Carrega um usuário pelo username (email)
      * @param username (email do usuário)
-     * @return UserDetails com informações do usuário e suas roles/permissões
+     * @return UserDetails com informações do usuário e a suas roles/permissões
      * @throws UsernameNotFoundException se usuário não encontrado
      */
     @Override

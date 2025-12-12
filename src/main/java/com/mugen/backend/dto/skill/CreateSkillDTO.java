@@ -23,7 +23,7 @@ public class CreateSkillDTO {
     @Pattern(
             regexp = "ACTIVE|PASSIVE|RACIAL|ULTIMATE",
             message = "Invalid skill type. Must be: ACTIVE, PASSIVE, RACIAL, or ULTIMATE"
-    )  // ✅ CORRIGIDO
+    )
     private String skillType;
 
     @Min(value = 0, message = "Base TP cost cannot be negative")
@@ -33,7 +33,7 @@ public class CreateSkillDTO {
     @Max(value = 100, message = "Max level cannot exceed 100")
     private Integer maxLevel;
 
-    @Min(value = 1, message = "Required level must be at least 1")  // ✅ ADICIONAR
+    @Min(value = 1, message = "Required level must be at least 1")
     private Integer requiredLevel;
 
     @Builder.Default

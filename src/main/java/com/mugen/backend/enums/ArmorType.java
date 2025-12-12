@@ -4,16 +4,15 @@ import lombok.Getter;
 
 /**
  * Tipo de armadura
- * 
  * LEVE: Maior mobilidade, menor proteção
  * NORMAL: Balanceada
  * PESADA: Maior proteção, menor mobilidade
  */
 @Getter
 public enum ArmorType {
-    LEVE("Leve", "🏃", "Armadura leve - Maior mobilidade, menor proteção"),
-    NORMAL("Normal", "🛡️", "Armadura normal - Balanceada entre proteção e mobilidade"),
-    PESADA("Pesada", "🏰", "Armadura pesada - Maior proteção, menor mobilidade");
+    LEVE("Leve", "L", "Armadura leve - Maior mobilidade, menor proteção"),
+    NORMAL("Normal", "N️", "Armadura normal - Balanceada entre proteção e mobilidade"),
+    PESADA("Pesada", "P", "Armadura pesada - Maior proteção, menor mobilidade");
 
     private final String displayName;
     private final String icon;
@@ -27,7 +26,7 @@ public enum ArmorType {
 
     /**
      * Retorna o tipo com ícone
-     * Ex: "🛡️ Normal"
+     * Ex: "N Normal"
      */
     public String getDisplayWithIcon() {
         return icon + " " + displayName;

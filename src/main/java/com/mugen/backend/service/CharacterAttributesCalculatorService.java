@@ -2,13 +2,12 @@ package com.mugen.backend.service;
 
 import com.mugen.backend.entity.character.CharacterAttribute;
 import com.mugen.backend.entity.character.CharacterEquipment;
-import com.mugen.backend.dto.equipment.EquipmentBonusesDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
- * ✅ NOVO SERVICE: Calcula atributos finais com bônus de equipamento
+ * Calcula atributos finais com bônus de equipamento
  * Responsável por combinar:
  * - Atributos-base do personagem
  * - Bônus do equipamento
@@ -20,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class CharacterAttributesCalculatorService {
 
     /**
-     * ✅ Calcula atributos FINAIS do personagem (base + equipamento)
+     * Calcula atributos FINAIS do personagem (base + equipamento)
      * 
      * @param baseAttributes Atributos-base do personagem (sem equipamento)
      * @param equipment Equipamento atual do personagem
@@ -32,7 +31,7 @@ public class CharacterAttributesCalculatorService {
         
         log.debug("Calculando atributos finais com bônus de equipamento");
         
-        // ✅ Cria uma cópia dos atributos-base
+        // Cria uma cópia dos atributos-base
         CharacterAttribute finalAttributes = CharacterAttribute.builder()
                 .characterId(baseAttributes.getCharacterId())
                 .str(baseAttributes.getStr())
@@ -43,7 +42,7 @@ public class CharacterAttributesCalculatorService {
                 .spi(baseAttributes.getSpi())
                 .build();
 
-        // ✅ Adiciona bônus do equipamento
+        // Adiciona bônus do equipamento
         finalAttributes.setStr(finalAttributes.getStr() + equipment.getTotalStrBonus());
         finalAttributes.setDex(finalAttributes.getDex() + equipment.getTotalDexBonus());
         finalAttributes.setCon(finalAttributes.getCon() + equipment.getTotalConBonus());
@@ -64,7 +63,7 @@ public class CharacterAttributesCalculatorService {
     }
 
     /**
-     * ✅ Apenas retorna os bônus do equipamento
+     * Apenas retorna os bônus do equipamento
      */
     public int calculateTotalBonus(CharacterEquipment equipment) {
         return equipment.getTotalStrBonus()

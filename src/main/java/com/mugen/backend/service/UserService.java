@@ -28,7 +28,7 @@ public class UserService {
 
     /**
      * Buscar todos os players do sistema
-     * Usado em: AdminController - GET /api/v1/admin/players
+     * Usado em: AdminController - GET /admin/players
      *
      * @return Lista com todos os usuários (players)
      */
@@ -47,7 +47,7 @@ public class UserService {
 
     /**
      * Buscar player por ID
-     * Usado em: AdminController - GET /api/v1/admin/players/{userId}
+     * Usado em: AdminController - GET /admin/players/{userId}
      *
      * @param userId ID do player
      * @return User encapsulado em Optional
@@ -62,11 +62,6 @@ public class UserService {
         log.debug("Finding all active users");
         return userRepository.findAllActiveUsers();
     }
-
-//    public Optional<User> findById(UUID id) {
-//        log.debug("Finding user by id: {}", id);
-//        return userRepository.findById(id);
-//    }
 
     public Optional<User> findByEmail(String email) {
         log.debug("Finding user by email: {}", email);
@@ -90,7 +85,7 @@ public class UserService {
             throw new IllegalArgumentException("User already exists with email: " + email);
         }
 
-        // Buscar role PLAYER como padrão
+        // Buscar role ‘PLAYER’ como padrão
         Role playerRole = roleService.findByRoleName(Role.RoleName.PLAYER)
                 .orElseThrow(() -> new IllegalStateException("PLAYER role not found"));
 

@@ -6,12 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 import java.time.LocalDateTime;
 
 /**
  * Entidade InventoryWeapon
- * 
  * Representa uma arma no inventário do personagem
  * Tabela intermediária entre Inventory e Weapon
  */

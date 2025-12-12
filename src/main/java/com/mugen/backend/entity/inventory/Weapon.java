@@ -2,7 +2,6 @@ package com.mugen.backend.entity.inventory;
 
 
 import com.mugen.backend.enums.ElementalType;
-
 import com.mugen.backend.enums.WeaponPrimaryType;
 import com.mugen.backend.enums.WeaponRarity;
 import com.mugen.backend.enums.WeaponSecondaryType;
@@ -17,7 +16,6 @@ import java.time.LocalDateTime;
 
 /**
  * Entidade Weapon (Arma)
- * 
  * Representa uma arma no sistema de inventário
  * Contém todos os atributos necessários para compra, venda e equipamento
  */

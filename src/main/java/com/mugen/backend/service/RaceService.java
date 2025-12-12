@@ -25,7 +25,7 @@ public class RaceService {
 
     public List<Race> findAllActive() {
         log.debug("Finding all active races");
-        return raceRepository.findAllActive(); // ✅ CORRIGIDO
+        return raceRepository.findAllActive();
     }
 
     public Optional<Race> findById(Integer id) {

@@ -26,6 +26,6 @@ public class Role extends BaseEntity implements Serializable {
 
     // Enum para facilitar uso no código
     public enum RoleName {
-        PLAYER, MASTER, MODERATOR
+        PLAYER, MASTER, ADMIN
     }
 }

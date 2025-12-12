@@ -1,19 +1,14 @@
 package com.mugen.backend.dto.inventory;
 
-import com.mugen.backend.dto.inventory.ArmorDTO;
-import com.mugen.backend.dto.inventory.MaterialDTO;
-import com.mugen.backend.dto.inventory.WeaponDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.*;
 
 import java.time.LocalDateTime;
 
 /**
  * DTO para Item no Inventário
- * 
  * Representa um item (arma, armadura ou material) no inventário
  */
 @Data

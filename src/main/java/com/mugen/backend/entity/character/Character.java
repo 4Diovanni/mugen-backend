@@ -67,20 +67,15 @@ public class Character extends BaseEntity {
     @OneToMany(mappedBy = "character", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"character", "hibernateLazyInitializer", "handler"})
     @Builder.Default
-    private Set<CharacterSkill> skills = new HashSet<>(); // ✅ Já está correto
-
-//    @OneToMany(mappedBy = "character", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonIgnoreProperties({"character", "hibernateLazyInitializer", "handler"})
-//    @Builder.Default
-//    private Set<CharacterTransformation> transformations = new HashSet<>(); // ✅ Já está correto
+    private Set<CharacterSkill> skills = new HashSet<>();
 
     @OneToMany(mappedBy = "character", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"character", "hibernateLazyInitializer", "handler"})
     @Builder.Default
-    private Set<CharacterTransformation> transformations = new HashSet<>(); // ✅ Já está correto
+    private Set<CharacterTransformation> transformations = new HashSet<>();
 
     // ✅ NOVO: Adicionar Inventory relationship
-    @OneToOne(mappedBy = "character", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "character", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"character"})
     private Inventory inventory;
 
@@ -89,7 +84,7 @@ public class Character extends BaseEntity {
     public void setAttributes(CharacterAttribute attributes) {
         if (attributes != null) {
             this.attributes = attributes;
-            attributes.setCharacter(this);  // ✅ Garantir relacionamento bidirecional
+            attributes.setCharacter(this);  // Garantir relacionamento bidirecional
         }
     }
 

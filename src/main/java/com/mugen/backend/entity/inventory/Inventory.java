@@ -1,7 +1,7 @@
 package com.mugen.backend.entity.inventory;
-import jakarta.persistence.*;
-import com.mugen.backend.entity.character.Character;
 
+import com.mugen.backend.entity.character.Character;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,11 +10,9 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Entidade Inventory (Inventário)
- * 
  * Inventário principal do personagem
  * Gerencia espaço e items (armas, armaduras, materiais)
  */
@@ -31,9 +29,6 @@ public class Inventory {
     private Long id;
 
     // ==================== RELACIONAMENTO ====================
-    
-//    @Column(name = "character_id", nullable = false, unique = true, columnDefinition = "BINARY(16)")
-//    private UUID characterId;       // 1:1 com Character
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "character_id", nullable = false, unique = true)

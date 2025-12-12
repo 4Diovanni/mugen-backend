@@ -1,9 +1,9 @@
 package com.mugen.backend.entity.character;
+
 import com.mugen.backend.entity.inventory.Armor;
 import com.mugen.backend.entity.inventory.Weapon;
-import jakarta.persistence.*;
-
 import com.mugen.backend.enums.EquipmentStatus;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

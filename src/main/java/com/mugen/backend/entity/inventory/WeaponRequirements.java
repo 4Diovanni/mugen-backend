@@ -1,11 +1,14 @@
 package com.mugen.backend.entity.inventory;
 
-import lombok.*;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Requisitos para usar uma arma
- * 
  * Classe Embeddable que define os requisitos mínimos de stats
  * para equipar uma arma
  */

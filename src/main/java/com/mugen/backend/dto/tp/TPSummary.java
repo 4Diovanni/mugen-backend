@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 /**
  * DTO para resposta de TP Summary (resumo de TP do personagem)
  * GET /characters/{id}/tp-summary

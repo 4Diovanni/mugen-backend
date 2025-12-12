@@ -3,7 +3,6 @@ package com.mugen.backend.service;
 import com.mugen.backend.dto.tp.GainExpRequest;
 import com.mugen.backend.entity.character.Character;
 import com.mugen.backend.repository.CharacterRepository;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -198,21 +197,9 @@ public class ExperienceService {
     // ==================== CLASSE AUXILIAR ====================
 
     /**
-     * DTO para retornar progresso de XP
-     */
-    @Getter
-    public static class LevelProgress {
-        private final long currentExp;
-        private final long expForNextLevel;
-        private final double progressPercentage;
-        private final boolean isMaxLevel;
-
-        public LevelProgress(long currentExp, long expForNextLevel, double progressPercentage, boolean isMaxLevel) {
-            this.currentExp = currentExp;
-            this.expForNextLevel = expForNextLevel;
-            this.progressPercentage = progressPercentage;
-            this.isMaxLevel = isMaxLevel;
-        }
+         * DTO para retornar progresso de XP
+         */
+        public record LevelProgress(long currentExp, long expForNextLevel, double progressPercentage, boolean isMaxLevel) {
 
     }
 }

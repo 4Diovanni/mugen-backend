@@ -12,7 +12,6 @@ import java.util.UUID;
 
 /**
  * Repository para CharacterEquipment
- * 
  * Gerencia equipamento ativo do personagem
  */
 @Repository

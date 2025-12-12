@@ -1,7 +1,5 @@
 package com.mugen.backend.exception;
 
-//import com.mugen.backend.exception.*;
-//import com.mugen.backend.exception.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -295,7 +293,7 @@ public class GlobalExceptionHandler {
     // ==================== HELPER METHODS ====================
 
     /**
-     * ✅ Método auxiliar para construir resposta de erro padronizada
+     *  Auxiliar para construir resposta de erro padronizada
      */
     private ResponseEntity<ErrorResponse> buildErrorResponse(
             HttpStatus status,

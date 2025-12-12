@@ -23,7 +23,7 @@ public class MaterialDTO {
     private String imageUrl;
     
     // Raridade
-    private String rarity;             // LENDARIO, EPICO, RARO, etc
+    private String rarity;             // LENDÁRIO, EPICO, RARO, etc
     private String rarityIcon;         // Ícone da raridade
     private String rarityColor;        // Cor hex da raridade
     

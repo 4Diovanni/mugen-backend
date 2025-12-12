@@ -1,6 +1,6 @@
 package com.mugen.backend.entity.inventory;
-import jakarta.persistence.*;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 
 /**
  * Entidade InventoryMaterial
- * 
  * Representa um material no inventário do personagem
  * Tabela intermediária entre Inventory e Material
  */

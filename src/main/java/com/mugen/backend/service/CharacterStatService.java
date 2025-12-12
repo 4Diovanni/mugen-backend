@@ -1,10 +1,10 @@
 package com.mugen.backend.service;
 
 import com.mugen.backend.dto.character.CharacterStats;
-import com.mugen.backend.entity.character.Character;
-import com.mugen.backend.entity.character.CharacterAttribute;
 import com.mugen.backend.entity.Race;
 import com.mugen.backend.entity.Transformation;
+import com.mugen.backend.entity.character.Character;
+import com.mugen.backend.entity.character.CharacterAttribute;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class CharacterStatService {
 
     /**
      * Calcula todos os stats finais do personagem baseado em:
-     * - Atributos base (STR, DEX, CON, WIL, MND, SPI)
+     * - Atributos-base (STR, DEX, CON, WIL, MND, SPI)
      * - Modificador da raça
      * - Multiplicador da transformação ativa
      */
@@ -146,7 +146,7 @@ public class CharacterStatService {
     }
 
     /**
-     * Calcula boost de stats ao ativar transformação
+     * Calcula ‘boost’ de stats ao ativar transformação
      */
     public CharacterStats calculateTransformationBoost(Character character, Transformation newTransformation) {
         log.debug("Calculating transformation boost for: {}", newTransformation.getName());

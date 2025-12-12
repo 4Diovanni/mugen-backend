@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * DTO para Armor (Armadura)
- * 
  * Usado para transferir dados de armadura entre camadas
  */
 @Data

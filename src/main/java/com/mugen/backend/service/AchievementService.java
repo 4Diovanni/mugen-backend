@@ -5,9 +5,9 @@ import com.mugen.backend.dto.achievement.CreateAchievementRequest;
 import com.mugen.backend.entity.Achievement;
 import com.mugen.backend.entity.character.Character;
 import com.mugen.backend.entity.character.CharacterAchievement;
+import com.mugen.backend.repository.CharacterRepository;
 import com.mugen.backend.repository.achievement.AchievementRepository;
 import com.mugen.backend.repository.achievement.CharacterAchievementRepository;
-import com.mugen.backend.repository.CharacterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -133,7 +133,6 @@ public class AchievementService {
 
     /**
      * Debloqueia um achievement para um personagem
-     * ✅ CORRIGIDO: Não tenta chamar TPService com awardedBy null
      */
     @Transactional
     public CharacterAchievement unlockAchievement(UUID characterId, Integer achievementId, String notificationMessage) {
@@ -171,7 +170,7 @@ public class AchievementService {
                         .reason("ACHIEVEMENT_" + achievement.getKeyName())
                         .build();
 
-                // ✅ NÃO passar awardedBy (deixar null para sistema)
+                // NÃO passar awardedBy (deixar null para sistema)
                 // TPService deve tratar null como "sistema"
                 tpService.awardTP(tpRequest, null);
             } catch (NullPointerException e) {
@@ -259,11 +258,6 @@ public class AchievementService {
                 .orElseThrow(() -> new IllegalArgumentException("Character not found"));
 
         Achievement achievement = getAchievementById(achievementId);
-
-        // Parse do requirementJson (implementar conforme necessário)
-        // Exemplo: {"minLevel": 50, "minCharacters": 3}
-
-        // TODO: Implementar lógica de validação de requisitos com JSON parsing
 
         return true;
     }

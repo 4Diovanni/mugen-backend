@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * Response de compra de item (arma/armadura)
- * 
  * Retornado após comprar um item com sucesso
  */
 @Data

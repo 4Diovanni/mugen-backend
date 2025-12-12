@@ -15,7 +15,7 @@ import java.util.Optional;
 /**
  * Repository para Armor (Armadura)
  * Queries para buscar armaduras com diversos filtros
- * ✅ 14 MÉTODOS IMPLEMENTADOS
+ * 14 MÉTODOS IMPLEMENTADOS
  */
 @Repository
 public interface ArmorRepository extends JpaRepository<Armor, Integer> {

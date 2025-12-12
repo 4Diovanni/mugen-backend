@@ -1,11 +1,13 @@
 package com.mugen.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
 
 import java.time.LocalDateTime;
 
@@ -35,7 +37,7 @@ public class Achievement {
     private String description; // "Crie o seu primeiro personagem"
 
     @Column(name = "requirement_json", nullable = false, columnDefinition = "jsonb")
-    @JdbcTypeCode(SqlTypes.JSON)  // ✅ Correto!
+    @JdbcTypeCode(SqlTypes.JSON)
     private String requirementJson;
 
     @Column(name = "reward_tp", nullable = false)

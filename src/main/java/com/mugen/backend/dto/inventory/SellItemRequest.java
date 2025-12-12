@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * Request para vender item do inventário
- * 
  * Usado pelo endpoint de venda de item
  */
 @Data

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 @Embeddable
@@ -28,8 +29,8 @@ public class CharacterSkillId implements Serializable {
 
         CharacterSkillId that = (CharacterSkillId) o;
 
-        if (characterId != null ? !characterId.equals(that.characterId) : that.characterId != null) return false;
-        return skillId != null ? skillId.equals(that.skillId) : that.skillId == null;
+        if (!Objects.equals(characterId, that.characterId)) return false;
+        return Objects.equals(skillId, that.skillId);
     }
 
     @Override

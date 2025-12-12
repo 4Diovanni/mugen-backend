@@ -1,6 +1,9 @@
 package com.mugen.backend.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +21,7 @@ public abstract class BaseEntity implements Serializable {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // ✅ Preenche timestamps automaticamente
+    // Preenche timestamps automaticamente
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {

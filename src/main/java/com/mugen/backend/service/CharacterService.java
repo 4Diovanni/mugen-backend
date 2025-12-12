@@ -2,12 +2,16 @@ package com.mugen.backend.service;
 
 import com.mugen.backend.dto.character.CharacterDTO;
 import com.mugen.backend.dto.character.UpdateCharacterDTO;
-import com.mugen.backend.entity.*;
+import com.mugen.backend.entity.Race;
+import com.mugen.backend.entity.Skill;
+import com.mugen.backend.entity.User;
 import com.mugen.backend.entity.character.Character;
-import com.mugen.backend.entity.character.CharacterAttribute;
 import com.mugen.backend.entity.character.CharacterSkill;
+import com.mugen.backend.entity.character.CharacterSkillId;
 import com.mugen.backend.exception.CharacterNotFoundException;
-import com.mugen.backend.repository.*;
+import com.mugen.backend.repository.CharacterRepository;
+import com.mugen.backend.repository.RaceRepository;
+import com.mugen.backend.repository.UserRepository;
 import com.mugen.backend.repository.skills.CharacterSkillRepository;
 import com.mugen.backend.repository.skills.SkillRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.mugen.backend.entity.character.CharacterSkillId;
-
-
 
 import java.util.List;
 import java.util.Optional;
@@ -46,8 +47,6 @@ public class CharacterService {
         return characterRepository.findAll();
     }
 
-
-
     public List<Character> findByOwnerId(UUID ownerId) {
         log.debug("Finding characters by owner id: {}", ownerId);
         return characterRepository.findByOwnerId(ownerId);
@@ -66,7 +65,6 @@ public class CharacterService {
     /**
      * Buscar personagens por userId (usando UUID)
      * Equivalente ao: characterRepository.findByOwnerId()
-     *
      * Usado em: AdminController - convertToPlayerSummary()
      *
      * @param userId ID do owner (UUID)
@@ -152,7 +150,7 @@ public class CharacterService {
                 .isActive(true)
                 .build();
 
-        // ⚠️ CRÍTICO: Apenas cria Character
+        // ⚠️CRÍTICO: Apenas cria Character (lembrar GIOVANNI DEV!)
         // CharacterAttribute será criado AUTOMATICAMENTE pela Race via JPA cascade
         Character saved = characterRepository.save(character);
 
@@ -233,7 +231,7 @@ public class CharacterService {
         Character character = characterRepository.findById(id)
                 .orElseThrow(() -> new CharacterNotFoundException(id));
 
-        // Validar nome único se estiver mudando o nome
+        // Validar nome único se estiver a mudar o nome
         if (dto.getName() != null && !dto.getName().equals(character.getName())) {
             if (characterRepository.existsByOwnerIdAndName(character.getOwner().getId(), dto.getName())) {
                 throw new IllegalStateException("User already has a character with name: " + dto.getName());
@@ -329,7 +327,6 @@ public class CharacterService {
 
     /**
      * Adicionar skill ao personagem
-     * ✅ CORRIGIDO: Usar CharacterSkillId (standalone class) ao invés de CharacterSkill.CharacterSkillId
      */
     @Transactional
     public CharacterSkill addSkillToCharacter(UUID characterId, Integer skillId) {
@@ -351,7 +348,7 @@ public class CharacterService {
 
         // 4️⃣ Criar CharacterSkill com as associações
         CharacterSkill characterSkill = CharacterSkill.builder()
-                .id(id)  // ✅ Usar CharacterSkillId (standalone class)
+                .id(id)  // Usar CharacterSkillId (standalone class)
                 .character(character)
                 .skill(skill)
                 .currentLevel(1)

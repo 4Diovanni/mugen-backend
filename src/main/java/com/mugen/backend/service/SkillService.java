@@ -36,10 +36,10 @@ public class SkillService {
         Skill skill = Skill.builder()
                 .name(dto.getName())
                 .description(dto.getDescription())
-                .skillType(SkillType.valueOf(dto.getSkillType())) // ✅ Converter String para Enum
+                .skillType(SkillType.valueOf(dto.getSkillType())) // Converter String para Enum
                 .baseTpCost(dto.getBaseTpCost() != null ? dto.getBaseTpCost() : 10)
                 .maxLevel(dto.getMaxLevel() != null ? dto.getMaxLevel() : 10)
-                .requiredLevel(dto.getRequiredLevel() != null ? dto.getRequiredLevel() : 1)  // ✅ ADICIONAR
+                .requiredLevel(dto.getRequiredLevel() != null ? dto.getRequiredLevel() : 1)
                 .isActive(dto.getIsActive() != null ? dto.getIsActive() : true)
                 .build();
 
@@ -101,7 +101,7 @@ public class SkillService {
         Skill skill = skillRepository.findById(id)
                 .orElseThrow(() -> new SkillNotFoundException(id));
 
-        // Validar nome único se estiver mudando
+        // Validar nome único se estiver a mudar
         if (dto.getName() != null && !dto.getName().equals(skill.getName())) {
             if (skillRepository.existsByName(dto.getName())) {
                 throw new IllegalStateException("Skill with name '" + dto.getName() + "' already exists");
@@ -114,7 +114,7 @@ public class SkillService {
             skill.setDescription(dto.getDescription());
         }
         if (dto.getSkillType() != null) {
-            skill.setSkillType(SkillType.valueOf(dto.getSkillType())); // ✅ Converter String para Enum
+            skill.setSkillType(SkillType.valueOf(dto.getSkillType())); // Converter String para Enum
         }
         if (dto.getBaseTpCost() != null) {
             skill.setBaseTpCost(dto.getBaseTpCost());
@@ -122,7 +122,7 @@ public class SkillService {
         if (dto.getMaxLevel() != null) {
             skill.setMaxLevel(dto.getMaxLevel());
         }
-        if (dto.getRequiredLevel() != null) {  // ✅ ADICIONAR
+        if (dto.getRequiredLevel() != null) {
             skill.setRequiredLevel(dto.getRequiredLevel());
         }
         if (dto.getIsActive() != null) {

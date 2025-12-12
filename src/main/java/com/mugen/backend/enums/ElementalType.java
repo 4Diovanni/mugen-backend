@@ -5,7 +5,6 @@ import lombok.Getter;
 
 /**
  * Tipo elemental da arma
- * 
  * Elementos do sistema de combate
  */
 

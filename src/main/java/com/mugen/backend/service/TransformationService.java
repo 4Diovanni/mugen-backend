@@ -1,11 +1,11 @@
 package com.mugen.backend.service;
 
-import com.mugen.backend.entity.*;
+import com.mugen.backend.entity.Transformation;
 import com.mugen.backend.entity.character.Character;
 import com.mugen.backend.entity.character.CharacterTransformation;
 import com.mugen.backend.entity.character.CharacterTransformationId;
 import com.mugen.backend.exception.CharacterNotFoundException;
-import com.mugen.backend.repository.*;
+import com.mugen.backend.repository.CharacterRepository;
 import com.mugen.backend.repository.transformation.CharacterTransformationRepository;
 import com.mugen.backend.repository.transformation.TransformationRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class TransformationService {
                 .orElseThrow(() -> new RuntimeException("Transformation not found with id: " + transformationId));
 
         // 3️⃣ Validar se personagem já desbloqueou
-        // ✅ CORRIGIDO: Usar CharacterTransformationId (classe separada, não inner class)
+        // Usar CharacterTransformationId (classe separada, não inner class)
         CharacterTransformationId id = new CharacterTransformationId(characterId, transformationId);
 
         CharacterTransformation existing = characterTransformationRepository.findById(id)
@@ -75,7 +75,7 @@ public class TransformationService {
             charTransformation.unlock();
         } else {
             charTransformation = CharacterTransformation.builder()
-                    .id(id)  // ✅ Passou corretamente agora
+                    .id(id)
                     .character(character)
                     .transformation(transformation)
                     .unlocked(true)

@@ -519,12 +519,12 @@ public class CharacterController {
         Character character = characterService.getCharacterById(characterId);
         ExperienceService.LevelProgress progress = experienceService.getLevelProgress(characterId);
         long totalExp = experienceService.getTotalExpForLevel(character.getLevel());
-        long nextLevelIn = progress.getExpForNextLevel() - progress.getCurrentExp();
+        long nextLevelIn = progress.expForNextLevel() - progress.currentExp();
         return ResponseEntity.ok(new ExperienceInfo(
                 character.getLevel(),
                 character.getExp(),
-                progress.getExpForNextLevel(),
-                progress.getProgressPercentage(),
+                progress.expForNextLevel(),
+                progress.progressPercentage(),
                 totalExp + character.getExp(),
                 progress.isMaxLevel(),
                 nextLevelIn

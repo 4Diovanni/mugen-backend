@@ -17,10 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -123,7 +120,7 @@ class CharacterServiceTest {
     @DisplayName("Should find characters by owner id")
     void shouldFindCharactersByOwnerId() {
         // Given
-        List<Character> characters = Arrays.asList(testCharacter);
+        List<Character> characters = Collections.singletonList(testCharacter);
 
         // ✅ ADICIONADO: Mock para validação de existência do usuário
         when(userRepository.existsById(userId)).thenReturn(true);

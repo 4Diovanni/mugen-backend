@@ -2,12 +2,11 @@ package com.mugen.backend.service.inventory;
 
 import com.mugen.backend.dto.inventory.WeaponDTO;
 import com.mugen.backend.dto.inventory.WeaponRequirementsDTO;
-import com.mugen.backend.enums.WeaponPrimaryType;
-import com.mugen.backend.enums.ElementalType;
 import com.mugen.backend.entity.inventory.Weapon;
 import com.mugen.backend.entity.inventory.WeaponRequirements;
+import com.mugen.backend.exception.InvalidOperationException;
+import com.mugen.backend.exception.ResourceNotFoundException;
 import com.mugen.backend.repository.inventory.WeaponRepository;
-import com.mugen.backend.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

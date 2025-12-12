@@ -16,9 +16,7 @@ import java.util.UUID;
 
 /**
  * EquipmentController - Controller REST para gerenciar equipamento dos personagens
- *
  * Endpoints para equipar/desequipar armas e armaduras
- *
  * Endpoints:
  * 1. GET    /characters/{characterId}/equipment           - Obter equipamento atual
  * 2. POST   /characters/{characterId}/equipment/equip     - Equipar item (arma/armadura)
