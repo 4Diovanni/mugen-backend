@@ -1,26 +1,38 @@
 package com.mugen.backend.config;
 
-import lombok.RequiredArgsConstructor;
+import com.mugen.backend.security.JwtAuthenticationFilter;
+import com.mugen.backend.security.JwtTokenProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity  // CRUCIAL para @PreAuthorize
-@RequiredArgsConstructor
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -28,35 +40,111 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/health").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authBuilder
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder());
+        return authBuilder.build();
+    }
 
-        return http.build();
+    /**
+     * 🔒 Configuração de CORS
+     * Define origens permitidas, métodos HTTP e headers
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        // Origens permitidas
+        config.setAllowedOrigins(Arrays.asList(
+                "http://localhost:3000",      // Frontend local
+                "http://localhost:3001",      // Frontend alternativo
+                "http://127.0.0.1:3000",      // IPv4 loopback
+                "https://seu-dominio.com"     // Produção - ALTERAR!
+        ));
+
+        // Métodos HTTP permitidos
+        config.setAllowedMethods(Arrays.asList(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS",
+                "PATCH"
+        ));
+
+        // Headers permitidos
+        config.setAllowedHeaders(Arrays.asList(
+                "*",
+                "Authorization",
+                "Content-Type",
+                "X-Requested-With",
+                "Accept",
+                "Accept-Language",
+                "Content-Language"
+        ));
+
+        // Headers expostos para o cliente
+        config.setExposedHeaders(Arrays.asList(
+                "Authorization",
+                "X-Total-Count",
+                "X-Page-Number",
+                "X-Page-Size"
+        ));
+
+        // Permitir credenciais (cookies, auth headers)
+        config.setAllowCredentials(true);
+
+        // Tempo de cache do preflight (em segundos = 1 hora)
+        config.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                // ✅ Habilitar CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
+                // ✅ Desabilitar CSRF (seguro com JWT)
+                .csrf(csrf -> csrf.disable())
+
+                // ✅ Política de sessão
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // ✅ Autorização de endpoints
+                .authorizeHttpRequests(authz -> authz
+                        // Endpoints públicos
+                        .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/health").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/races").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/races/**").permitAll()
+
+                        // Endpoints que requerem autenticação
+                        .requestMatchers(HttpMethod.GET, "/characters").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/characters").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/characters/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/characters/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/characters/**").authenticated()
+
+                        // Endpoints admin (usar @PreAuthorize no controller)
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        // Qualquer outro endpoint requer autenticação
+                        .anyRequest().authenticated()
+                )
+
+                // ✅ Adicionar filtro JWT
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtTokenProvider),
+                        UsernamePasswordAuthenticationFilter.class
+                );
+
+        return http.build();
     }
 }

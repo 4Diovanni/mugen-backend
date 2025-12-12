@@ -80,52 +80,39 @@ public class CharacterService {
 
     @Transactional
     public Character createCharacter(CharacterDTO dto) {
-        log.info("Creating character: {} for owner: {}", dto.getName(), dto.getOwnerId());
+        log.info("Request to create character: {}", dto.getName());
 
-        // primeiro antes de validar os demais
-        // Validar nome único para o mesmo owner
+        // Validar se já existe um personagem com este nome para este usuário
         if (characterRepository.existsByOwnerIdAndName(dto.getOwnerId(), dto.getName())) {
-            throw new IllegalStateException("User already has a character with name: " + dto.getName());
+            throw new IllegalArgumentException("Personagem com este nome já existe para este usuário");
         }
 
-        // Buscar owner
+        // Buscar proprietário
         User owner = userRepository.findById(dto.getOwnerId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + dto.getOwnerId()));
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
 
-        // Buscar race
+        // Buscar raça
         Race race = raceRepository.findById(dto.getRaceId())
-                .orElseThrow(() -> new RuntimeException("Race not found with id: " + dto.getRaceId()));
+                .orElseThrow(() -> new IllegalArgumentException("Raça não encontrada"));
 
-
+        log.info("Creating character: {} for owner: {}", dto.getName(), owner.getId());
 
         // Criar personagem
         Character character = Character.builder()
-                .owner(owner)
                 .name(dto.getName())
+                .owner(owner)
                 .race(race)
                 .level(1)
                 .exp(0L)
-                .tp(10)
+                .tp(0)
                 .isActive(true)
                 .build();
 
-        // Criar atributos baseados na raça
-        CharacterAttribute attributes = CharacterAttribute.builder()
-//                .character(character)
-                .str(race.getStartStr())
-                .dex(race.getStartDex())
-                .con(race.getStartCon())
-                .wil(race.getStartWil())
-                .mnd(race.getStartMnd())
-                .spi(race.getStartSpi())
-                .build();
-
-        character.setAttributes(attributes);
-
-        // Salvar
+        // ⚠️ CRÍTICO: Apenas cria Character
+        // CharacterAttribute será criado AUTOMATICAMENTE pela Race via JPA cascade
         Character saved = characterRepository.save(character);
-        log.info("Character created successfully with id: {}", saved.getId());
 
+        log.info("Character created successfully with id: {}", saved.getId());
         return saved;
     }
 

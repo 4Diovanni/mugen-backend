@@ -62,5 +62,17 @@ application-local.properties
 application-dev.properties
 application-prod.properties
 
+# ========== ARQUIVOS COM SECRETS ==========
+src/main/resources/application.properties
+src/main/resources/application.yml
+src/main/resources/application-*.properties
+src/main/resources/application-*.yml
+
 # Não commitar senhas!
 **/application-secret.properties
+
+# Credenciais
+*.env
+.env
+.env.local
+.env.*.local
