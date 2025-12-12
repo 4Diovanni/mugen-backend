@@ -1,0 +1,124 @@
+# ============================================
+# MUGEN RPG - Application Configuration
+# ============================================
+
+spring:
+  application:
+    name: mugen-backend
+
+  # ============================================
+  # DATABASE CONFIGURATION (Supabase PostgreSQL)
+  # ============================================
+  datasource:
+    url: jdbc:postgresql://db.wbfgmryihcycnltrrzkj.supabase.co:5432/postgres
+    username: postgres
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+    # Connection Pool (HikariCP)
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # ============================================
+  # JPA / HIBERNATE CONFIGURATION
+  # ============================================
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate  # validate = não altera schema (Flyway faz isso)
+    show-sql: true  # true = mostra SQL no console (útil para debug)
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          time_zone: America/Sao_Paulo
+
+  # ============================================
+  # FLYWAY CONFIGURATION
+  # ============================================
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    clean-disabled: true  # NUNCA limpe o banco em prod!
+
+# ============================================
+# SERVER CONFIGURATION
+# ============================================
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-stacktrace: on_param  # ?trace=true para ver stacktrace
+  servlet:
+    context-path: /api
+
+# ============================================
+# JWT CONFIGURATION
+# ============================================
+jwt:
+  spring.datasource.username=${DB_USERNAME}
+  spring.datasource.password=${DB_PASSWORD}
+  jwt.secret=${JWT_SECRET}
+  # 24 horas em milissegundos
+
+# ============================================
+# SUPABASE CONFIGURATION
+# ============================================
+supabase:
+  url: https://wbfgmryihcycnltrrzkj.supabase.co
+  anon-key: ${ANON_KEY}
+  service-role-key: ${SERVICE_ROLE_KEY}
+  storage:
+    bucket-avatars: avatars
+
+# ============================================
+# LOGGING CONFIGURATION
+# ============================================
+logging:
+  level:
+    root: INFO
+    com.mugen.backend: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+
+# ============================================
+# PROFILES (dev, prod)
+# ============================================
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    root: DEBUG
+    com.mugen.backend: TRACE
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  level:
+    root: WARN
+    com.mugen.backend: INFO
+
+server:
+  error:
+    include-stacktrace: never
