@@ -1,0 +1,150 @@
+name: CI/CD Pipeline - Mugen RPG Backend
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: 4diovanni/mugen_docker  # Mude para seu usuário: seu-usuario/mugen-backend
+
+jobs:
+  # ============================================
+  # STAGE 1: Build and Test
+  # ============================================
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    name: 🔨 Build and Test Maven Project
+
+    steps:
+      # 1. Checkout do código
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for SonarQube
+
+      # 2. Setup Java 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      # 3. Build com Maven
+      - name: 🏗️ Build with Maven
+        run: mvn clean compile -B
+
+      # 4. Rodar testes unitários
+      - name: 🧪 Run Unit Tests
+        run: mvn test -B
+
+      # 5. Rodar build completo (com package)
+      - name: 📦 Package JAR
+        run: mvn package -B -DskipTests
+
+    # 6. SonarQube Analysis (optional - requer setup)
+    # - name: 📊 SonarQube Analysis
+    #   run: mvn sonar:sonar
+    #   env:
+    #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    #     SONAR_LOGIN: ${{ secrets.SONAR_TOKEN }}
+
+  # ============================================
+  # STAGE 2: Build Docker Image
+  # ============================================
+  build-docker:
+    needs: build-and-test  # Só roda se build-and-test passar
+    runs-on: ubuntu-latest
+
+    name: 🐳 Build Docker Image
+
+    if: github.event_name == 'push'  # Só em push, não em PR
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Setup Docker BuildX (para builds mais rápidos)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 2. Login no Docker Hub
+      - name: 🔐 Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 3. Extract metadata (tags, labels)
+      - name: 📝 Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/mugen_docker
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      # 4. Build and Push Docker Image
+      - name: 🚀 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================
+  # STAGE 3: Security Scanning (optional)
+  # ============================================
+  security-scan:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    name: 🔒 Security Scanning
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Trivy - Container vulnerability scanner
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # ============================================
+  # STAGE 4: Notify Success
+  # ============================================
+  notify:
+    needs: [build-and-test, build-docker]
+    runs-on: ubuntu-latest
+
+    name: ✅ Pipeline Complete
+
+    if: always()
+
+    steps:
+      - name: Pipeline Status
+        run: |
+          echo "✅ CI/CD Pipeline Completed Successfully!"
+          echo "📊 Build Status: ${{ needs.build-and-test.result }}"
+          echo "🐳 Docker Status: ${{ needs.build-docker.result }}"

@@ -1,0 +1,30 @@
+# Configuração para Testes Unitários e de Integração
+# Usa H2 em memória para isolar os testes do banco de dados real.
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ${DB_PASSWORD:}
+  
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop # Cria o schema e destrói após os testes
+    show-sql: false
+  
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    clean-disabled: false # Permite o clean para testes
+    
+  # Desabilita a segurança para a maioria dos testes de serviço/repositório
+  security:
+    enabled: false
+    
+  # Desabilita o JWT para testes
+  jwt:
+    secret: test-secret
+    expiration: 1000

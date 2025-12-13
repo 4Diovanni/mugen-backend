@@ -1,0 +1,19 @@
+### Ignorar arquivos e diretórios do Maven
+target/
+.mvn/
+.idea/
+.vscode/
+.git/
+.gitignore
+*.iml
+mvnw
+mvnw.cmd
+
+### Ignorar arquivos de log e temporários
+*.log
+tmp/
+temp/
+
+### Ignorar arquivos de configuração local
+.env
+.DS_Store
