@@ -1,8 +1,9 @@
-package com.mugen.backend.service;
+package com.mugen.backend;
 
 import com.mugen.backend.dto.tp.GainExpRequest;
 import com.mugen.backend.entity.character.Character;
 import com.mugen.backend.repository.CharacterRepository;
+import com.mugen.backend.service.ExperienceService;
 import com.mugen.backend.service.ExperienceService.LevelProgress;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

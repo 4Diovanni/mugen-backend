@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -42,7 +42,7 @@ class UserRepositoryIntegrationTest {
                 .description("Player role")
                 .build();
         playerRole = roleRepository.save(playerRole);
-    }  // ✅ FECHAR AQUI!
+    }
 
     // ✅ HELPER: Criar User válido
     private User createValidUser(String email, String displayName) {
@@ -52,7 +52,7 @@ class UserRepositoryIntegrationTest {
         return User.builder()
                 .email(email)
                 .displayName(displayName)
-                .passwordHash("hashed_password_123")  // ✅ SEMPRE com senha
+                .passwordHash("hashed_password_123")
                 .isActive(true)
                 .roles(roles)
                 .build();

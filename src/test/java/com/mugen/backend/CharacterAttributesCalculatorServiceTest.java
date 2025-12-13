@@ -1,7 +1,8 @@
-package com.mugen.backend.service;
+package com.mugen.backend;
 
 import com.mugen.backend.entity.character.CharacterAttribute;
 import com.mugen.backend.entity.character.CharacterEquipment;
+import com.mugen.backend.service.CharacterAttributesCalculatorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
