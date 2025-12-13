@@ -19,7 +19,7 @@ RUN chmod +x mvnw && ./mvnw clean package -DskipTests
 # ============================================
 # Stage 2: Runtime
 # ============================================
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jdk-alpine AS builder
 
 WORKDIR /app
 
