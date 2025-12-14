@@ -1,34 +1,36 @@
 # ============================================
-# Stage 1: Builder
+# Stage 1: Builder (com Maven incluído)
 # ============================================
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
 
 WORKDIR /app
 
-# Copy Maven files
-
+# Copy pom.xml
 COPY pom.xml .
+
+# Download dependencies (cacheable layer)
+RUN mvn dependency:go-offline -B 2>&1 | grep -v "^\[WARNING\]" || true
 
 # Copy source code
 COPY src ./src
 
-# Build the application
-RUN chmod +x mvnw && ./mvnw clean package -DskipTests
+# Build application (skip tests)
+RUN mvn clean package -DskipTests -B
 
 # ============================================
 # Stage 2: Runtime
 # ============================================
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# Copy JAR from builder
+# Copy JAR from builder stage
 COPY --from=builder /app/target/*.jar app.jar
 
 # Create non-root user for security
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+RUN addgroup -g 1000 appuser && adduser -D -u 1000 -G appuser appuser
 
-# Change ownership
+# Change ownership to non-root user
 RUN chown -R appuser:appuser /app
 
 # Switch to non-root user
@@ -38,8 +40,8 @@ USER appuser
 EXPOSE 8080
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD java -cp app.jar org.springframework.boot.loader.JarLauncher
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://localhost:8080/actuator/health || exit 1
 
 # Run application
 ENTRYPOINT ["java", "-jar", "app.jar"]
