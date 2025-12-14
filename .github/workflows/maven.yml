@@ -109,8 +109,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    # Trivy - Filesystem vulnerability scanner
-    - name: Run Trivy vulnerability scanner
+    # Trivy - Filesystem vulnerability scanner (Table format)
+    - name: 🔍 Run Trivy filesystem scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'table'
+        exit-code: '0'
+    
+    # Trivy - Generate SARIF report (for artifacts)
+    - name: 📊 Generate Trivy SARIF report
       uses: aquasecurity/trivy-action@master
       with:
         scan-type: 'fs'
@@ -118,13 +127,13 @@ jobs:
         format: 'sarif'
         output: 'trivy-results.sarif'
     
-    # Upload com permissões reduzidas (sem CodeQL v2)
-    - name: 📤 Upload Trivy results
-      uses: github/codeql-action/upload-sarif@v3
+    # Upload scan results as artifact
+    - name: 📤 Upload scan results
+      uses: actions/upload-artifact@v4
       if: always()
       with:
-        sarif_file: 'trivy-results.sarif'
-        wait-for-processing: false
+        name: trivy-scan-results
+        path: trivy-results.sarif
 
   # ============================================
   # STAGE 4: Notify Success
@@ -141,12 +150,14 @@ jobs:
     - name: 🎉 Pipeline Status
       run: |
         echo "✅ CI/CD Pipeline Completed!"
+        echo ""
         echo "📊 Build Status: ${{ needs.build-and-test.result }}"
         echo "🐳 Docker Status: ${{ needs.build-docker.result }}"
         echo "🔒 Security Status: ${{ needs.security-scan.result }}"
+        echo ""
         
         if [ "${{ needs.build-and-test.result }}" = "success" ] && [ "${{ needs.build-docker.result }}" = "success" ]; then
-          echo ""
-          echo "🚀 Image pushed to Docker Hub!"
-          echo "📦 Repository: ${{ secrets.DOCKER_USERNAME }}/mugen_docker"
+          echo "✅ All checks passed!"
+          echo "🚀 Image pushed to Docker Hub:"
+          echo "📦 docker pull ${{ secrets.DOCKER_USERNAME }}/mugen_docker:latest"
         fi
