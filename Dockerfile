@@ -8,7 +8,6 @@ WORKDIR /app
 # Copy Maven files
 COPY .mvnw .mvnw
 COPY mvnw.cmd .
-COPY mvnw
 COPY pom.xml .
 
 # Copy source code
