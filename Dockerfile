@@ -6,7 +6,6 @@ FROM eclipse-temurin:17-jdk-alpine AS builder
 WORKDIR /app
 
 # Copy Maven files
-COPY .mvn .mvn
 COPY mvnw .
 COPY pom.xml .
 
