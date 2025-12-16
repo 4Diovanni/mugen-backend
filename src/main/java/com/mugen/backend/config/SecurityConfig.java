@@ -51,6 +51,7 @@ public class SecurityConfig {
     /**
      * 🔒 Configuração de CORS
      * Define origens permitidas, métodos HTTP e headers
+     * ✅ ATUALIZADO: Incluindo localhost:5173 (Vite dev server)
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -58,9 +59,12 @@ public class SecurityConfig {
 
         // Origens permitidas
         config.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000",      // Frontend local
+                "http://localhost:3000",      // Frontend local (Create React App)
                 "http://localhost:3001",      // Frontend alternativo
+                "http://localhost:5173",      // ✅ Vite dev server (padrão)
+                "http://localhost:5174",      // ✅ Vite dev server (alternativo)
                 "http://127.0.0.1:3000",      // IPv4 loopback
+                "http://127.0.0.1:5173",      // IPv4 Vite
                 "https://seu-dominio.com"     // Produção - ALTERAR!
         ));
 
